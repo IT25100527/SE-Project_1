@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Items - PharmaCare</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f5;
+            color: #26332b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: #123d2a;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding: 25px 18px;
+            color: white;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #b8d8c4;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 8px;
+        }
+
+        .nav-links a {
+            display: block;
+            text-decoration: none;
+            color: #dcebe2;
+            padding: 13px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #20583d;
+        }
+
+        .nav-links a.active {
+            background: #2f8f61;
+            color: white;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 240px;
+            padding: 32px 40px 60px;
+            width: calc(100% - 240px);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #173d2b;
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            color: #66756c;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #2f8f61;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #26764f;
+        }
+
+        /* CARD */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid #e4ebe6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            color: #173d2b;
+        }
+
+        .search-box {
+            width: 260px;
+            padding: 10px 13px;
+            border: 1px solid #d5e0d9;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            border-color: #2f8f61;
+        }
+
+        /* TABLE */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f6f3;
+            color: #405148;
+            font-size: 13px;
+            text-align: left;
+            padding: 14px 15px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 15px;
+            border-top: 1px solid #edf1ee;
+            font-size: 14px;
+            color: #35443b;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: #fafcfb;
+        }
+
+        /* ACTION BUTTONS */
+        .btn-edit {
+            background: #e4f3eb;
+            color: #26764f;
+            border: none;
+            padding: 7px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .btn-delete {
+            background: #fde8e8;
+            color: #c84b4b;
+            border: none;
+            padding: 7px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-edit:hover {
+            background: #d4ebdf;
+        }
+
+        .btn-delete:hover {
+            background: #f8d5d5;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .45);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .modal-header h2 {
+            color: #173d2b;
+            font-size: 20px;
+        }
+
+        .close {
+            font-size: 25px;
+            color: #7b8981;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #405148;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d5e0d9;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2f8f61;
+        }
+
+        .form-group textarea {
+            min-height: 90px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .btn-cancel {
+            background: #eef2ef;
+            color: #405148;
+            border: none;
+            padding: 10px 17px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+                padding: 25px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+
+            body {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .search-box {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>PharmaCare</h2>
+        <p>Pharmacy Management System</p>
+    </div>
+
+    <ul class="nav-links">
+
+        <li>
+            <a href="/medicine.html">Medicine</a>
+        </li>
+
+        <li>
+            <a href="/inventory.html">Inventory</a>
+        </li>
+
+        <li>
+            <a href="/prescription.html">Prescription</a>
+        </li>
+
+        <li>
+            <a href="/prescription-item.html" class="active">
+                Prescription Items
+            </a>
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Prescription Item Management</h1>
+            <p>Manage medicines and instructions assigned to prescriptions.</p>
+        </div>
+
+        <button class="btn-primary" onclick="openAddModal()">
+            + Add Prescription Item
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>Prescription Item List</h2>
+
+            <input
+                    type="text"
+                    id="searchInput"
+                    class="search-box"
+                    placeholder="Search prescription items..."
+                    onkeyup="searchPrescriptionItems()"
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Prescription ID</th>
+                    <th>Medicine ID</th>
+                    <th>Quantity</th>
+                    <th>Dosage</th>
+                    <th>Instructions</th>
+                    <th>Actions</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="prescriptionItemTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL -->
+<div class="modal" id="prescriptionItemModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">Add Prescription Item</h2>
+
+            <span class="close" onclick="closeModal()">&times;</span>
+
+        </div>
+
+
+        <form id="prescriptionItemForm">
+
+            <input
+                    type="hidden"
+                    id="presItemId"
+            >
+
+
+            <div class="form-group">
+
+                <label>Prescription</label>
+
+                <select
+                        id="prescriptionId"
+                        required
+                >
+
+                    <option value="">
+                        Select Prescription
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Medicine</label>
+
+                <select
+                        id="medicineId"
+                        required
+                >
+
+                    <option value="">
+                        Select Medicine
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Quantity</label>
+
+                <input
+                        type="number"
+                        id="qty"
+                        min="1"
+                        required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Dosage</label>
+
+                <input
+                        type="text"
+                        id="dosage"
+                        placeholder="Enter dosage"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Instructions</label>
+
+                <textarea
+                        id="instructions"
+                        placeholder="Enter instructions"
+                ></textarea>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                        type="button"
+                        class="btn-cancel"
+                        onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                        type="submit"
+                        class="btn-primary"
+                >
+                    Save
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API = "/api/prescription-items";
+    const MEDICINE_API = "/api/medicines";
+    const PRESCRIPTION_API = "/api/prescriptions";
+
+    let prescriptionItemData = [];
+    let editingId = null;
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+        loadPrescriptionItems();
+        loadMedicines();
+        loadPrescriptions();
+
+        document
+            .getElementById("prescriptionItemForm")
+            .addEventListener(
+                "submit",
+                savePrescriptionItem
+            );
+
+    });
+
+
+    /* LOAD PRESCRIPTION ITEMS */
+
+    async function loadPrescriptionItems() {
+
+        try {
+
+            const response =
+                await fetch(API);
+
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to load prescription items"
+                );
+            }
+
+            prescriptionItemData =
+                await response.json();
+
+            displayPrescriptionItems(
+                prescriptionItemData
+            );
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Unable to load prescription items."
+            );
+
+        }
+
+    }
+
+
+    /* DISPLAY PRESCRIPTION ITEMS */
+
+    function displayPrescriptionItems(data) {
+
+        const tableBody =
+            document.getElementById(
+                "prescriptionItemTableBody"
+            );
+
+        tableBody.innerHTML = "";
+
+
+        data.forEach(item => {
+
+            const row =
+                document.createElement("tr");
+
+
+            const prescriptionId =
+                item.prescription
+                    ? item.prescription.presId
+                    : "-";
+
+
+            const medicineId =
+                item.medicine
+                    ? item.medicine.medId
+                    : "-";
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${item.presItemId ?? ""}
+                </td>
+
+                <td>
+                    ${prescriptionId}
+                </td>
+
+                <td>
+                    ${medicineId}
+                </td>
+
+                <td>
+                    ${item.qty ?? ""}
+                </td>
+
+                <td>
+                    ${item.dosage ?? ""}
+                </td>
+
+                <td>
+                    ${item.instructions ?? ""}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn-edit"
+                        onclick="editPrescriptionItem(${item.presItemId})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="btn-delete"
+                        onclick="deletePrescriptionItem(${item.presItemId})"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+
+            tableBody.appendChild(row);
+
+        });
+
+    }
+
+
+    /* LOAD MEDICINES */
+
+    async function loadMedicines() {
+
+        try {
+
+            const response =
+                await fetch(MEDICINE_API);
+
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to load medicines"
+                );
+            }
+
+            const medicines =
+                await response.json();
+
+
+            const select =
+                document.getElementById(
+                    "medicineId"
+                );
+
+
+            select.innerHTML =
+                '<option value="">Select Medicine</option>';
+
+
+            medicines.forEach(medicine => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    medicine.medId;
+
+                option.textContent =
+                    `${medicine.medId} - ${medicine.medName}`;
+
+                select.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    /* LOAD PRESCRIPTIONS */
+
+    async function loadPrescriptions() {
+
+        try {
+
+            const response =
+                await fetch(PRESCRIPTION_API);
+
+            if (!response.ok) {
+                throw new Error(
+                    "Failed to load prescriptions"
+                );
+            }
+
+            const prescriptions =
+                await response.json();
+
+
+            const select =
+                document.getElementById(
+                    "prescriptionId"
+                );
+
+
+            select.innerHTML =
+                '<option value="">Select Prescription</option>';
+
+
+            prescriptions.forEach(prescription => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value =
+                    prescription.presId;
+
+                option.textContent =
+                    `${prescription.presId} - ${prescription.docName ?? "Prescription"}`;
+
+                select.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    /* OPEN ADD MODAL */
+
+    function openAddModal() {
+
+        editingId = null;
+
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            "Add Prescription Item";
+
+
+        document.getElementById(
+            "prescriptionItemForm"
+        ).reset();
+
+
+        document.getElementById(
+            "presItemId"
+        ).value = "";
+
+
+        document.getElementById(
+            "prescriptionItemModal"
+        ).style.display =
+            "flex";
+
+    }
+
+
+    /* EDIT */
+
+    function editPrescriptionItem(id) {
+
+        const item =
+            prescriptionItemData.find(
+                i => i.presItemId === id
+            );
+
+
+        if (!item) return;
+
+
+        editingId = id;
+
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            "Edit Prescription Item";
+
+
+        document.getElementById(
+            "presItemId"
+        ).value =
+            item.presItemId;
+
+
+        document.getElementById(
+            "prescriptionId"
+        ).value =
+            item.prescription
+                ? item.prescription.presId
+                : "";
+
+
+        document.getElementById(
+            "medicineId"
+        ).value =
+            item.medicine
+                ? item.medicine.medId
+                : "";
+
+
+        document.getElementById(
+            "qty"
+        ).value =
+            item.qty ?? "";
+
+
+        document.getElementById(
+            "dosage"
+        ).value =
+            item.dosage ?? "";
+
+
+        document.getElementById(
+            "instructions"
+        ).value =
+            item.instructions ?? "";
+
+
+        document.getElementById(
+            "prescriptionItemModal"
+        ).style.display =
+            "flex";
+
+    }
+
+
+    /* SAVE */
+
+    async function savePrescriptionItem(event) {
+
+        event.preventDefault();
+
+
+        const prescriptionId =
+            document.getElementById(
+                "prescriptionId"
+            ).value;
+
+
+        const medicineId =
+            document.getElementById(
+                "medicineId"
+            ).value;
+
+
+        const data = {
+
+            qty:
+                parseInt(
+                    document.getElementById(
+                        "qty"
+                    ).value
+                ),
+
+            dosage:
+            document.getElementById(
+                "dosage"
+            ).value,
+
+            instructions:
+            document.getElementById(
+                "instructions"
+            ).value,
+
+            medicine: {
+                medId:
+                    parseInt(medicineId)
+            },
+
+            prescription: {
+                presId:
+                    parseInt(prescriptionId)
+            }
+
+        };
+
+
+        try {
+
+            const url =
+                editingId
+                    ? `${API}/${editingId}`
+                    : API;
+
+
+            const method =
+                editingId
+                    ? "PUT"
+                    : "POST";
+
+
+            const response =
+                await fetch(url, {
+
+                    method: method,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify(data)
+
+                });
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to save prescription item"
+                );
+
+            }
+
+
+            closeModal();
+
+            await loadPrescriptionItems();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Unable to save prescription item."
+            );
+
+        }
+
+    }
+
+
+    /* DELETE */
+
+    async function deletePrescriptionItem(id) {
+
+        if (
+            !confirm(
+                "Are you sure you want to delete this prescription item?"
+            )
+        ) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to delete prescription item"
+                );
+
+            }
+
+
+            await loadPrescriptionItems();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Unable to delete prescription item."
+            );
+
+        }
+
+    }
+
+
+    /* SEARCH */
+
+    function searchPrescriptionItems() {
+
+        const search =
+            document
+                .getElementById(
+                    "searchInput"
+                )
+                .value
+                .toLowerCase();
+
+
+        const filtered =
+            prescriptionItemData.filter(item => {
+
+                const prescriptionId =
+                    item.prescription
+                        ? item.prescription.presId
+                            .toString()
+                        : "";
+
+
+                const medicineId =
+                    item.medicine
+                        ? item.medicine.medId
+                            .toString()
+                        : "";
+
+
+                return (
+
+                    item.presItemId
+                        ?.toString()
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    prescriptionId
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    medicineId
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.qty
+                        ?.toString()
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.dosage
+                        ?.toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.instructions
+                        ?.toLowerCase()
+                        .includes(search)
+
+                );
+
+            });
+
+
+        displayPrescriptionItems(filtered);
+
+    }
+
+
+    /* CLOSE MODAL */
+
+    function closeModal() {
+
+        document.getElementById(
+            "prescriptionItemModal"
+        ).style.display =
+            "none";
+
+    }
+
+
+    window.onclick = function(event) {
+
+        const modal =
+            document.getElementById(
+                "prescriptionItemModal"
+            );
+
+        if (event.target === modal) {
+            closeModal();
+        }
+
+    };
+
+</script>
+
+</body>
+</html>
