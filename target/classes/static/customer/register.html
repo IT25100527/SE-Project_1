@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Customer Registration · Pharmacy Management System</title>
+
+  <link rel="stylesheet" href="/css/main.css">
+
+  <style>
+
+    /* =========================================
+       PHONE UI
+    ========================================= */
+
+    .phone-wrapper {
+      position: relative;
+    }
+
+    .phone-wrapper input {
+      padding-right: 70px;
+    }
+
+    .digit-counter {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #777;
+      pointer-events: none;
+    }
+
+    .digit-counter.valid {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .digit-counter.invalid {
+      color: #dc2626;
+    }
+
+
+    /* =========================================
+       LIVE VALIDATION
+    ========================================= */
+
+    .validation-message {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .validation-message.success {
+      color: #16a34a;
+    }
+
+    .validation-message.error {
+      color: #dc2626;
+    }
+
+
+    /* =========================================
+       PASSWORD REQUIREMENTS
+    ========================================= */
+
+    .password-requirements {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: #f7f8fa;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .password-requirements p {
+      margin: 5px 0;
+      color: #777;
+    }
+
+    .password-requirements p.valid {
+      color: #16a34a;
+    }
+
+    .password-requirements p.invalid {
+      color: #dc2626;
+    }
+
+    .requirement-icon {
+      display: inline-block;
+      width: 18px;
+    }
+
+
+    /* =========================================
+       EMAIL UI
+    ========================================= */
+
+    .email-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .email-status {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .email-status.success {
+      color: #16a34a;
+    }
+
+    .email-status.error {
+      color: #dc2626;
+    }
+
+
+    /* =========================================
+       VERIFICATION POPUP
+    ========================================= */
+
+    .verification-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      z-index: 9999;
+
+      padding: 20px;
+    }
+
+    .verification-overlay.show {
+      display: flex;
+    }
+
+    .verification-popup {
+      width: 100%;
+      max-width: 430px;
+
+      background: white;
+      border-radius: 16px;
+
+      padding: 30px;
+
+      text-align: center;
+
+      box-shadow:
+              0 20px 60px rgba(0,0,0,0.25);
+
+      animation: popupAnimation 0.25s ease;
+    }
+
+    @keyframes popupAnimation {
+
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+    }
+
+    .email-icon {
+      width: 65px;
+      height: 65px;
+
+      margin: 0 auto 18px;
+
+      border-radius: 50%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #eef6ff;
+
+      font-size: 30px;
+    }
+
+    .verification-popup h2 {
+      margin-bottom: 10px;
+    }
+
+    .verification-popup p {
+      color: #666;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .verification-email {
+      font-weight: 600;
+      color: var(--primary);
+      word-break: break-word;
+    }
+
+    .popup-actions {
+      margin-top: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .popup-actions button {
+      width: 100%;
+    }
+
+    .resend-button {
+      background: transparent;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 600;
+      padding: 8px;
+    }
+
+    .close-popup {
+      background: #f1f1f1;
+      color: #333;
+    }
+
+
+    /* =========================================
+       OTP VERIFICATION
+    ========================================= */
+
+    .otp-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0 10px;
+    }
+
+    .otp-input {
+      width: 48px;
+      height: 52px;
+      border: 1px solid #d6d9de;
+      border-radius: 9px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: 600;
+      outline: none;
+      transition: 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .otp-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 100, 70, 0.10);
+    }
+
+    .otp-input.filled {
+      border-color: #16a34a;
+    }
+
+    .otp-expiry {
+      font-size: 13px !important;
+      color: #777 !important;
+    }
+
+    .success-icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #dcfce7;
+      color: #16a34a;
+      font-size: 40px;
+      font-weight: 700;
+    }
+
+
+    /* =========================================
+       PASSWORD SHOW/HIDE
+    ========================================= */
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 70px;
+    }
+
+    .show-password {
+      position: absolute;
+
+      right: 10px;
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      border: none;
+      background: transparent;
+
+      cursor: pointer;
+
+      font-size: 12px;
+      color: var(--primary);
+
+      font-weight: 600;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+<div class="login-shell">
+
+  <div class="login-card" style="max-width:420px;">
+
+    <div class="login-mark">
+      <span class="rx">Rx<sup>+</sup></span>
+    </div>
+
+    <h1>Create your account</h1>
+
+    <p class="lede">
+      Register as a customer to start ordering.
+    </p>
+
+
+    <form id="registerForm">
+
+
+      <!-- =====================================
+           FULL NAME
+      ===================================== -->
+
+      <div class="field" id="fullNameField">
+
+        <label for="fullName">
+          Full name
+        </label>
+
+        <input
+                type="text"
+                id="fullName"
+                autocomplete="name"
+                required
+        >
+
+        <div class="error"></div>
+
+      </div>
+
+
+      <!-- =====================================
+           EMAIL
+      ===================================== -->
+
+      <div class="field" id="emailField">
+
+        <label for="email">
+          Gmail address
+        </label>
+
+        <input
+                type="email"
+                id="email"
+                placeholder="example@gmail.com"
+                autocomplete="email"
+                required
+        >
+
+        <div class="email-hint">
+          Only Gmail addresses ending with @gmail.com are accepted.
+        </div>
+
+        <div
+                id="emailStatus"
+                class="email-status"
+        ></div>
+
+        <div class="error"></div>
+
+      </div>
+
+
+      <!-- =====================================
+           PHONE
+      ===================================== -->
+
+      <div class="field" id="phoneNumberField">
+
+        <label for="phoneNumber">
+          Phone number
+        </label>
+
+        <div class="phone-wrapper">
+
+          <input
+                  type="tel"
+                  id="phoneNumber"
+                  inputmode="numeric"
+                  autocomplete="tel"
+                  maxlength="10"
+                  minlength="10"
+                  placeholder="07XXXXXXXX"
+                  required
+          >
+
+          <span
+                  id="digitCounter"
+                  class="digit-counter"
+          >
+    0 / 10
+</span>
+
+        </div>
+
+        <div class="hint">
+          Enter exactly 10 digits. Example: 0771234567
+        </div>
+
+        <div
+                id="phoneStatus"
+                class="validation-message"
+        ></div>
+
+        <div class="error"></div>
+
+      </div>
+
+
+      <!-- =====================================
+           PASSWORD
+      ===================================== -->
+
+      <div class="field" id="passwordField">
+
+        <label for="password">
+          Password
+        </label>
+
+        <div class="password-wrapper">
+
+          <input
+                  type="password"
+                  id="password"
+                  autocomplete="new-password"
+                  required
+          >
+
+          <button
+                  type="button"
+                  id="showPassword"
+                  class="show-password"
+          >
+            Show
+          </button>
+
+        </div>
+
+
+        <!-- PASSWORD REQUIREMENTS -->
+
+        <div class="password-requirements">
+
+          <p id="passwordLength">
+            <span class="requirement-icon">○</span>
+            At least 8 characters
+          </p>
+
+          <p id="passwordUpper">
+            <span class="requirement-icon">○</span>
+            At least one uppercase letter
+          </p>
+
+          <p id="passwordLower">
+            <span class="requirement-icon">○</span>
+            At least one lowercase letter
+          </p>
+
+          <p id="passwordNumber">
+            <span class="requirement-icon">○</span>
+            At least one number
+          </p>
+
+          <p id="passwordSymbol">
+            <span class="requirement-icon">○</span>
+            At least one special character
+          </p>
+
+        </div>
+
+        <div class="error"></div>
+
+      </div>
+
+
+      <!-- =====================================
+           REGISTER BUTTON
+      ===================================== -->
+
+      <button
+              type="submit"
+              id="registerButton"
+              class="btn btn-primary"
+              style="width:100%; justify-content:center;"
+      >
+        Create account
+      </button>
+
+    </form>
+
+
+    <p class="login-foot">
+
+      Already have an account?
+
+      <a
+              href="/customer/login.html"
+              style="color:var(--primary); font-weight:500;"
+      >
+        Log in
+      </a>
+
+    </p>
+
+  </div>
+</div>
+
+
+<div
+        class="toast-stack"
+        id="toastStack"
+></div>
+
+
+<!-- =========================================
+     OTP VERIFICATION POPUP
+========================================= -->
+
+<div
+        id="verificationOverlay"
+        class="verification-overlay"
+>
+
+  <div class="verification-popup">
+
+    <div class="email-icon">
+      📧
+    </div>
+
+    <h2>
+      Verify Your Email
+    </h2>
+
+    <p>
+      Your customer account has been created successfully.
+    </p>
+
+    <p>
+      We sent a 6-digit verification code to:
+    </p>
+
+    <div
+            id="verificationEmail"
+            class="verification-email"
+    ></div>
+
+    <p>
+      Enter the verification code below.
+    </p>
+
+    <div class="otp-container">
+
+      <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+      >
+
+      <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              inputmode="numeric"
+      >
+
+      <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              inputmode="numeric"
+      >
+
+      <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              inputmode="numeric"
+      >
+
+      <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              inputmode="numeric"
+      >
+
+      <input
+              type="text"
+              class="otp-input"
+              maxlength="1"
+              inputmode="numeric"
+      >
+
+    </div>
+
+    <p class="otp-expiry">
+      This code will expire in <strong>10 minutes</strong>.
+    </p>
+
+    <div class="popup-actions">
+
+      <button
+              type="button"
+              id="verifyOtpButton"
+              class="btn btn-primary"
+      >
+        Verify Email
+      </button>
+
+      <button
+              type="button"
+              id="resendVerification"
+              class="resend-button"
+      >
+        Resend Code
+      </button>
+
+      <button
+              type="button"
+              id="closeVerification"
+              class="btn close-popup"
+      >
+        Close
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================
+     EMAIL VERIFIED SUCCESS POPUP
+========================================= -->
+
+<div
+        id="successOverlay"
+        class="verification-overlay"
+>
+
+  <div class="verification-popup success-popup">
+
+    <div class="success-icon">
+      ✓
+    </div>
+
+    <h2>
+      Email Verified Successfully!
+    </h2>
+
+    <p>
+      Your email address has been verified successfully.
+    </p>
+
+    <p>
+      Your customer account is now ready to use.
+    </p>
+
+    <div class="popup-actions">
+
+      <a
+              href="/customer/login.html"
+              class="btn btn-primary"
+              style="width:100%; justify-content:center; text-decoration:none;"
+      >
+        Login to Your Account
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script src="/js/common.js"></script>
+
+
+<script>
+
+  /* =========================================
+     VARIABLES
+  ========================================= */
+
+  let lastEmail = '';
+
+
+  /* =========================================
+     ELEMENTS
+  ========================================= */
+
+  const registerForm =
+          document.getElementById('registerForm');
+
+  const registerButton =
+          document.getElementById('registerButton');
+
+  const emailInput =
+          document.getElementById('email');
+
+  const emailStatus =
+          document.getElementById('emailStatus');
+
+  const phoneInput =
+          document.getElementById('phoneNumber');
+
+  const digitCounter =
+          document.getElementById('digitCounter');
+
+  const phoneStatus =
+          document.getElementById('phoneStatus');
+
+  const passwordInput =
+          document.getElementById('password');
+
+  const otpInputs =
+          document.querySelectorAll('.otp-input');
+
+  const verifyOtpButton =
+          document.getElementById('verifyOtpButton');
+
+  const successOverlay =
+          document.getElementById('successOverlay');
+
+
+  /* =========================================
+     EMAIL VALIDATION
+  ========================================= */
+
+  emailInput.addEventListener('input', function () {
+
+    const email = this.value.trim();
+
+    emailStatus.classList.remove(
+            'success',
+            'error'
+    );
+
+
+    if (email.length === 0) {
+
+      emailStatus.textContent = '';
+
+      return;
+    }
+
+
+    // Gmail must end with @gmail.com
+    const gmailPattern =
+            /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+
+    if (gmailPattern.test(email)) {
+
+      emailStatus.classList.add('success');
+
+      emailStatus.textContent =
+              '✓ Valid Gmail address';
+
+    } else {
+
+      emailStatus.classList.add('error');
+
+      emailStatus.textContent =
+              '✕ Please enter a valid Gmail address ending with @gmail.com';
+
+    }
+
+  });
+
+
+  /* =========================================
+     PHONE VALIDATION
+  ========================================= */
+
+  phoneInput.addEventListener('input', function () {
+
+    // Numbers only
+    this.value =
+            this.value.replace(/\D/g, '');
+
+
+    // Maximum 10 digits
+    if (this.value.length > 10) {
+
+      this.value =
+              this.value.substring(0, 10);
+
+    }
+
+
+    const length =
+            this.value.length;
+
+
+    digitCounter.textContent =
+            length + ' / 10';
+
+
+    digitCounter.classList.remove(
+            'valid',
+            'invalid'
+    );
+
+    phoneStatus.classList.remove(
+            'success',
+            'error'
+    );
+
+
+    if (length === 0) {
+
+      phoneStatus.textContent = '';
+
+      return;
+
+    }
+
+
+    if (length < 10) {
+
+      digitCounter.classList.add('invalid');
+
+      phoneStatus.classList.add('error');
+
+      phoneStatus.textContent =
+              'Please enter ' +
+              (10 - length) +
+              ' more digit(s).';
+
+      return;
+
+    }
+
+
+    if (/^07\d{8}$/.test(this.value)) {
+
+      digitCounter.classList.add('valid');
+
+      phoneStatus.classList.add('success');
+
+      phoneStatus.textContent =
+              '✓ Valid 10-digit mobile number';
+
+    } else {
+
+      digitCounter.classList.add('invalid');
+
+      phoneStatus.classList.add('error');
+
+      phoneStatus.textContent =
+              '✕ Number must start with 07.';
+
+    }
+
+  });
+
+
+  /* =========================================
+     OTP INPUT HANDLING
+  ========================================= */
+
+  otpInputs.forEach((input, index) => {
+
+    input.addEventListener('input', function () {
+
+      this.value = this.value.replace(/\D/g, '');
+
+      if (this.value.length > 1) {
+        this.value = this.value.charAt(0);
+      }
+
+      if (this.value) {
+
+        this.classList.add('filled');
+
+        if (index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+
+      } else {
+
+        this.classList.remove('filled');
+
+      }
+
+    });
+
+
+    input.addEventListener('keydown', function (e) {
+
+      if (
+              e.key === 'Backspace' &&
+              !this.value &&
+              index > 0
+      ) {
+
+        otpInputs[index - 1].focus();
+
+        otpInputs[index - 1].value = '';
+
+        otpInputs[index - 1]
+                .classList.remove('filled');
+
+      }
+
+      if (
+              e.key === 'ArrowLeft' &&
+              index > 0
+      ) {
+        otpInputs[index - 1].focus();
+      }
+
+      if (
+              e.key === 'ArrowRight' &&
+              index < otpInputs.length - 1
+      ) {
+        otpInputs[index + 1].focus();
+      }
+
+    });
+
+
+    input.addEventListener('paste', function (e) {
+
+      e.preventDefault();
+
+      const pastedData =
+              e.clipboardData
+                      .getData('text')
+                      .replace(/\D/g, '')
+                      .substring(0, 6);
+
+      pastedData
+              .split('')
+              .forEach((digit, i) => {
+
+                if (otpInputs[i]) {
+
+                  otpInputs[i].value = digit;
+
+                  otpInputs[i]
+                          .classList.add('filled');
+
+                }
+
+              });
+
+      if (pastedData.length > 0) {
+
+        const nextIndex =
+                Math.min(
+                        pastedData.length,
+                        otpInputs.length - 1
+                );
+
+        otpInputs[nextIndex].focus();
+
+      }
+
+    });
+
+  });
+
+
+  /* =========================================
+     PASSWORD VALIDATION
+  ========================================= */
+
+  function updatePasswordRequirement(
+          elementId,
+          valid
+  ) {
+
+    const element =
+            document.getElementById(elementId);
+
+    const icon =
+            element.querySelector('.requirement-icon');
+
+
+    element.classList.remove(
+            'valid',
+            'invalid'
+    );
+
+
+    if (valid) {
+
+      element.classList.add('valid');
+
+      icon.textContent = '✓';
+
+    } else {
+
+      element.classList.add('invalid');
+
+      icon.textContent = '○';
+
+    }
+
+  }
+
+
+  passwordInput.addEventListener(
+          'input',
+          function () {
+
+            const password = this.value;
+
+
+            updatePasswordRequirement(
+                    'passwordLength',
+                    password.length >= 8
+            );
+
+
+            updatePasswordRequirement(
+                    'passwordUpper',
+                    /[A-Z]/.test(password)
+            );
+
+
+            updatePasswordRequirement(
+                    'passwordLower',
+                    /[a-z]/.test(password)
+            );
+
+
+            updatePasswordRequirement(
+                    'passwordNumber',
+                    /[0-9]/.test(password)
+            );
+
+
+            updatePasswordRequirement(
+                    'passwordSymbol',
+                    /[^A-Za-z0-9]/.test(password)
+            );
+
+          }
+  );
+
+
+  /* =========================================
+     SHOW / HIDE PASSWORD
+  ========================================= */
+
+  document
+          .getElementById('showPassword')
+          .addEventListener('click', function () {
+
+            if (passwordInput.type === 'password') {
+
+              passwordInput.type = 'text';
+
+              this.textContent = 'Hide';
+
+            } else {
+
+              passwordInput.type = 'password';
+
+              this.textContent = 'Show';
+
+            }
+
+          });
+
+
+  /* =========================================
+     CHECK PASSWORD
+  ========================================= */
+
+  function isValidPassword(password) {
+
+    return (
+            password.length >= 8 &&
+            /[A-Z]/.test(password) &&
+            /[a-z]/.test(password) &&
+            /[0-9]/.test(password) &&
+            /[^A-Za-z0-9]/.test(password)
+    );
+
+  }
+
+
+  /* =========================================
+     CHECK GMAIL
+  ========================================= */
+
+  function isValidGmail(email) {
+
+    return /^[a-zA-Z0-9._%+-]+@gmail\.com$/
+            .test(email);
+
+  }
+
+
+  /* =========================================
+     REGISTER
+  ========================================= */
+
+  registerForm.addEventListener(
+          'submit',
+          async function (e) {
+
+            e.preventDefault();
+
+
+            clearErrors([
+              'fullNameField',
+              'emailField',
+              'phoneNumberField',
+              'passwordField'
+            ]);
+
+
+            const fullName =
+                    document
+                            .getElementById('fullName')
+                            .value
+                            .trim();
+
+
+            const email =
+                    emailInput.value.trim();
+
+
+            const phoneNumber =
+                    phoneInput.value.trim();
+
+
+            const password =
+                    passwordInput.value;
+
+
+            /* -------------------------------
+               EMAIL CHECK
+            -------------------------------- */
+
+            if (!isValidGmail(email)) {
+
+              emailStatus.classList.add('error');
+
+              emailStatus.textContent =
+                      '✕ Please use a valid Gmail address ending with @gmail.com';
+
+              emailInput.focus();
+
+              return;
+
+            }
+
+
+            /* -------------------------------
+               PHONE CHECK
+            -------------------------------- */
+
+            if (!/^07\d{8}$/.test(phoneNumber)) {
+
+              phoneStatus.classList.add('error');
+
+              phoneStatus.textContent =
+                      '✕ Please enter a valid 10-digit mobile number.';
+
+              phoneInput.focus();
+
+              return;
+
+            }
+
+
+            /* -------------------------------
+               PASSWORD CHECK
+            -------------------------------- */
+
+            if (!isValidPassword(password)) {
+
+              showToast(
+                      'Please complete all password requirements.',
+                      'error'
+              );
+
+              passwordInput.focus();
+
+              return;
+
+            }
+
+
+            lastEmail = email;
+
+
+            try {
+
+              registerButton.disabled = true;
+
+              registerButton.textContent =
+                      'Creating account...';
+
+
+              const res =
+                      await postJson(
+                              '/customer/register',
+                              {
+                                fullName: fullName,
+                                email: email,
+                                phoneNumber: phoneNumber,
+                                password: password
+                              }
+                      );
+
+
+              /* -------------------------------
+                 SUCCESS
+              -------------------------------- */
+
+              showToast(
+                      res.message ||
+                      'Account created successfully.',
+                      'success'
+              );
+
+
+              // Show OTP verification popup
+              document
+                      .getElementById('verificationEmail')
+                      .textContent = email;
+
+              otpInputs.forEach(input => {
+                input.value = '';
+                input.classList.remove('filled');
+              });
+
+              document
+                      .getElementById('verificationOverlay')
+                      .classList.add('show');
+
+              otpInputs[0].focus();
+
+
+              // Reset form
+              registerForm.reset();
+
+
+              // Reset phone UI
+              digitCounter.textContent =
+                      '0 / 10';
+
+              digitCounter.classList.remove(
+                      'valid',
+                      'invalid'
+              );
+
+              phoneStatus.textContent = '';
+
+              emailStatus.textContent = '';
+
+
+              // Reset password requirements
+              updatePasswordRequirement(
+                      'passwordLength',
+                      false
+              );
+
+              updatePasswordRequirement(
+                      'passwordUpper',
+                      false
+              );
+
+              updatePasswordRequirement(
+                      'passwordLower',
+                      false
+              );
+
+              updatePasswordRequirement(
+                      'passwordNumber',
+                      false
+              );
+
+              updatePasswordRequirement(
+                      'passwordSymbol',
+                      false
+              );
+
+
+            } catch (err) {
+
+              handleErrorResponse(
+                      err,
+                      [
+                        'fullNameField',
+                        'emailField',
+                        'phoneNumberField',
+                        'passwordField'
+                      ]
+              );
+
+            } finally {
+
+              registerButton.disabled = false;
+
+              registerButton.textContent =
+                      'Create account';
+
+            }
+
+          }
+  );
+
+
+  /* =========================================
+     CLOSE VERIFICATION POPUP
+  ========================================= */
+
+  document
+          .getElementById('closeVerification')
+          .addEventListener(
+                  'click',
+                  function () {
+
+                    document
+                            .getElementById('verificationOverlay')
+                            .classList.remove('show');
+
+                  }
+          );
+
+
+  /* =========================================
+     CLICK OUTSIDE POPUP
+  ========================================= */
+
+  document
+          .getElementById('verificationOverlay')
+          .addEventListener(
+                  'click',
+                  function (e) {
+
+                    if (e.target === this) {
+
+                      this.classList.remove('show');
+
+                    }
+
+                  }
+          );
+
+
+  /* =========================================
+     VERIFY OTP
+  ========================================= */
+
+  verifyOtpButton.addEventListener(
+          'click',
+          async function () {
+
+            const code =
+                    Array.from(otpInputs)
+                            .map(input => input.value)
+                            .join('');
+
+            if (code.length !== 6) {
+
+              showToast(
+                      'Please enter the complete 6-digit verification code.',
+                      'error'
+              );
+
+              otpInputs[0].focus();
+
+              return;
+            }
+
+
+            try {
+
+              verifyOtpButton.disabled = true;
+
+              verifyOtpButton.textContent =
+                      'Verifying...';
+
+
+              await postJson(
+                      '/customer/verify-email?email=' +
+                      encodeURIComponent(lastEmail) +
+                      '&code=' +
+                      encodeURIComponent(code),
+                      {}
+              );
+
+
+              document
+                      .getElementById('verificationOverlay')
+                      .classList.remove('show');
+
+
+              successOverlay.classList.add('show');
+
+
+            } catch (err) {
+
+              showToast(
+                      err.message ||
+                      'Invalid verification code.',
+                      'error'
+              );
+
+
+              otpInputs.forEach(input => {
+
+                input.value = '';
+
+                input.classList.remove('filled');
+
+              });
+
+              otpInputs[0].focus();
+
+            } finally {
+
+              verifyOtpButton.disabled = false;
+
+              verifyOtpButton.textContent =
+                      'Verify Email';
+
+            }
+
+          }
+  );
+
+
+  /* =========================================
+     RESEND OTP
+  ========================================= */
+
+  document
+          .getElementById('resendVerification')
+          .addEventListener(
+                  'click',
+                  async function () {
+
+                    if (!lastEmail) {
+
+                      showToast(
+                              'Please register first.',
+                              'error'
+                      );
+
+                      return;
+                    }
+
+
+                    try {
+
+                      this.disabled = true;
+
+                      this.textContent =
+                              'Sending...';
+
+
+                      const res =
+                              await postJson(
+                                      '/customer/resend-verification?email=' +
+                                      encodeURIComponent(lastEmail),
+                                      {}
+                              );
+
+
+                      showToast(
+                              res.message ||
+                              'A new verification code has been sent.',
+                              'success'
+                      );
+
+
+                      otpInputs.forEach(input => {
+
+                        input.value = '';
+
+                        input.classList.remove('filled');
+
+                      });
+
+
+                      otpInputs[0].focus();
+
+
+                    } catch (err) {
+
+                      showToast(
+                              err.message ||
+                              'Could not resend verification code.',
+                              'error'
+                      );
+
+                    } finally {
+
+                      this.disabled = false;
+
+                      this.textContent =
+                              'Resend Code';
+
+                    }
+
+                  }
+          );
+
+</script>
+
+</body>
+</html>
