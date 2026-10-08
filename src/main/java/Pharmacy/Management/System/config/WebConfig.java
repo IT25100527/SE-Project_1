@@ -1,18 +1,16 @@
-package Pharmacy.Management.System.config;
+package Pharmacy.Management.System;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * The frontend (static/index.html) is served by this same Spring Boot
- * app, so CORS is not required for normal use. This is kept only so the
- * API can still be called from a different origin during development
- * (e.g. testing with Postman, or opening index.html directly with
- * VS Code Live Server instead of through Spring Boot).
- */
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final AuthInterceptor authInterceptor;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -20,5 +18,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authInterceptor)
+                .addPathPatterns("/api/admin/**", "/api/session", "/api/me/**");
     }
 }

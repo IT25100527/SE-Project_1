@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pharmacy Management System – Sales &amp; Billing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Pharmacy Management System <span>Sales &amp; Billing</span></h1>
+    <nav>
+      <button class="tab active" data-tab="sale">New sale</button>
+      <button class="tab" data-tab="invoices">Invoices</button>
+      <button class="tab" data-tab="medicines">Medicines</button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- NEW SALE -->
+    <section id="view-sale" class="view">
+      <div class="sale-layout">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Select medicines</h2>
+            <input id="saleSearch" type="search" placeholder="Search by medicine name">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Medicine</th><th>Batch</th><th class="num">Price</th><th class="num">In stock</th><th>Expiry</th><th class="num">Qty</th><th></th></tr></thead>
+              <tbody id="saleMedicines"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <aside class="panel bill">
+          <h2>Current bill</h2>
+          <div class="field-row">
+            <label>Customer name<input id="custName" placeholder="Walk-in customer"></label>
+            <label>Phone<input id="custPhone" placeholder="07X XXX XXXX"></label>
+          </div>
+          <div class="table-wrap cart">
+            <table>
+              <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Total</th><th></th></tr></thead>
+              <tbody id="cartBody"></tbody>
+            </table>
+          </div>
+          <dl class="totals">
+            <div><dt>Subtotal</dt><dd id="tSubtotal">Rs. 0.00</dd></div>
+            <div><dt><label for="discount">Discount (Rs.)</label></dt><dd><input id="discount" type="number" min="0" step="0.01" value="0"></dd></div>
+            <div class="grand"><dt>Total</dt><dd id="tTotal">Rs. 0.00</dd></div>
+          </dl>
+          <div class="field-row">
+            <label>Payment method
+              <select id="payMethod"><option>CASH</option><option>CARD</option><option>ONLINE</option></select>
+            </label>
+            <label>Amount received (Rs.)<input id="amountPaid" type="number" min="0" step="0.01" value="0"></label>
+          </div>
+          <p id="payNote" class="note"></p>
+          <button id="completeSale" class="primary wide">Complete sale</button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- INVOICES -->
+    <section id="view-invoices" class="view" hidden>
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Invoices</h2>
+          <input id="invoiceSearch" type="search" placeholder="Search by invoice no. or customer">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th class="num">Total</th><th class="num">Paid</th><th class="num">Balance</th><th>Status</th><th></th></tr></thead>
+            <tbody id="invoiceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEDICINES -->
+    <section id="view-medicines" class="view" hidden>
+      <div class="med-layout">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Medicines</h2>
+            <input id="medSearch" type="search" placeholder="Search medicines">
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Name</th><th>Category</th><th>Batch</th><th class="num">Price</th><th class="num">Stock</th><th>Expiry</th><th></th></tr></thead>
+              <tbody id="medBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <form id="medForm" class="panel" autocomplete="off">
+          <h2 id="medFormTitle">Add medicine</h2>
+          <input type="hidden" id="medId">
+          <label>Name<input id="medName" required></label>
+          <label>Category<input id="medCategory" placeholder="e.g. Antibiotic"></label>
+          <label>Batch no.<input id="medBatch"></label>
+          <div class="field-row">
+            <label>Unit price (Rs.)<input id="medPrice" type="number" min="0.01" step="0.01" required></label>
+            <label>Stock<input id="medStock" type="number" min="0" step="1" required></label>
+          </div>
+          <div class="field-row">
+            <label>Expiry date<input id="medExpiry" type="date" required></label>
+            <label>Reorder level<input id="medReorder" type="number" min="0" step="1" value="10"></label>
+          </div>
+          <div class="actions">
+            <button type="submit" class="primary">Save medicine</button>
+            <button type="button" id="medCancel" class="ghost" hidden>Cancel edit</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- INVOICE DIALOG -->
+  <dialog id="invoiceDialog">
+    <div id="invoiceBodyView"></div>
+    <div id="payBox" class="no-print"></div>
+    <div class="actions no-print">
+      <button class="primary" onclick="window.print()">Print invoice</button>
+      <button class="ghost" onclick="document.getElementById('invoiceDialog').close()">Close</button>
+    </div>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="js/app.js"></script>
+</body>
+</html>
