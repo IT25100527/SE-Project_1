@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Login · Pharmacy Management System</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div class="login-shell">
+    <div class="login-card">
+        <div class="login-mark"><span class="rx">Rx<sup>+</sup></span></div>
+        <h1>Staff Login</h1>
+        <p class="lede">For Administrators, Pharmacists, Cashiers, Inventory, Delivery and Purchase staff.</p>
+
+        <form id="loginForm">
+            <div class="field" id="emailField">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+                <div class="error"></div>
+            </div>
+            <div class="field" id="passwordField">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+                <div class="error"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Log In</button>
+        </form>
+
+        <p class="login-foot">
+            Customer? <a href="/customer/login.html" style="color:var(--primary); font-weight:500;">Go to customer login</a>
+        </p>
+
+        <div class="demo-note">
+            Default admin (seeded on first run): admin@pharmacy.com / Admin@123 — change this after first login.
+        </div>
+    </div>
+</div>
+<div class="toast-stack" id="toastStack"></div>
+<script src="/js/common.js"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearErrors(['emailField', 'passwordField']);
+        try {
+            const res = await postJson('/staff/login', {
+                email: document.getElementById('email').value.trim(),
+                password: document.getElementById('password').value
+            });
+            showToast(res.message, 'success');
+            setTimeout(() => window.location.href = '/dashboard', 600);
+        } catch (err) {
+            handleErrorResponse(err, ['emailField', 'passwordField']);
+        }
+    });
+</script>
+</body>
+</html>
