@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rx+ PHARMACORE - Supplier Management</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app-container">
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>Rx<sup>+</sup> PHARMACORE</h2>
+    </div>
+    <nav class="nav-menu">
+      <a href="#" class="nav-item"><span>01</span> Dashboard</a>
+      <a href="#" class="nav-item"><span>02</span> Users</a>
+      <a href="#" class="nav-item active"><span>03</span> Supplier Mgmt</a>
+      <a href="#" class="nav-item"><span>04</span> Inventory</a>
+    </nav>
+    <div class="user-profile">
+      <div class="avatar">SA</div>
+      <div class="user-info">
+        <span class="user-name">System Admin</span>
+        <span class="user-role">ADMIN</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content View -->
+  <main class="main-content">
+    <header class="page-header">
+      <div class="header-titles">
+        <span class="sub-title">SUPPLIER MANAGEMENT</span>
+        <h1>Suppliers Directory</h1>
+        <p>Manage pharmaceutical suppliers, contact details, and categories.</p>
+      </div>
+      <button class="btn btn-primary" id="openAddModalBtn">+ Add Supplier</button>
+    </header>
+
+    <!-- Table Card Container -->
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+        <tr>
+          <th>SUPPLIER NAME</th>
+          <th>CONTACT PERSON</th>
+          <th>EMAIL & PHONE</th>
+          <th>CATEGORY</th>
+          <th>STATUS</th>
+          <th>ACTIONS</th>
+        </tr>
+        </thead>
+        <tbody id="supplierTableBody">
+        <tr class="empty-row">
+          <td colspan="6">Loading suppliers...</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- View Modal Dialog -->
+<div class="modal-overlay" id="supplierModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="supplier-title-group">
+        <div class="modal-avatar" id="modalAvatar">MP</div>
+        <div>
+          <div class="supplier-heading-row">
+            <h2 id="modalSupplierName">-</h2>
+            <span class="badge badge-green" id="modalStatus"><span class="dot"></span> Active</span>
+            <span class="badge badge-blue" id="modalCategory">-</span>
+          </div>
+          <span class="supplier-id" id="modalSupplierId">Supplier ID: -</span>
+        </div>
+      </div>
+      <button class="close-btn" id="closeModalBtn">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="section-title">CONTACT INFORMATION</div>
+      <div class="details-grid">
+        <div class="info-group">
+          <span class="info-label">Primary Contact Person</span>
+          <span class="info-value" id="modalContactPerson">-</span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Designation</span>
+          <span class="info-value" id="modalDesignation">-</span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Phone Number</span>
+          <span class="info-value" id="modalPhone">-</span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Email Address</span>
+          <span class="info-value" id="modalEmail">-</span>
+        </div>
+      </div>
+
+      <div class="section-title">BUSINESS & ADDRESS DETAILS</div>
+      <div class="details-grid">
+        <div class="info-group">
+          <span class="info-label">Business Reg. No (BRN)</span>
+          <span class="info-value" id="modalBrn">-</span>
+        </div>
+        <div class="info-group">
+          <span class="info-label">Payment Terms</span>
+          <span class="info-value" id="modalPaymentTerms">-</span>
+        </div>
+        <div class="info-group full-width">
+          <span class="info-label">Registered Office Address</span>
+          <span class="info-value" id="modalAddress">-</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="modalCloseBtn">Close</button>
+      <button class="btn btn-primary-dark" id="modalEditBtn">Edit Details</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit Supplier Modal (same form used for both) -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal-card modal-form">
+    <div class="modal-header">
+      <div>
+        <h2 id="formModalTitle">Add New Supplier</h2>
+        <p id="formModalSubtitle">Enter the details for a new pharmaceutical supplier partner.</p>
+      </div>
+      <button class="close-btn" id="closeFormModalBtn">&times;</button>
+    </div>
+
+    <form id="supplierForm">
+      <input type="hidden" id="supplierId">
+      <div class="modal-body">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Supplier Name <span class="required">*</span></label>
+            <input type="text" id="supplierName" placeholder="e.g., MedPharma Lanka Ltd" required>
+          </div>
+
+          <div class="form-group">
+            <label>Business Reg. No (BRN)</label>
+            <input type="text" id="businessRegNo" placeholder="e.g., PV-98234-X">
+          </div>
+
+          <div class="form-group">
+            <label>Primary Contact Person <span class="required">*</span></label>
+            <input type="text" id="contactPerson" placeholder="e.g., Kamal Perera" required>
+          </div>
+
+          <div class="form-group">
+            <label>Designation</label>
+            <input type="text" id="designation" placeholder="e.g., Sales Manager">
+          </div>
+
+          <div class="form-group">
+            <label>Email Address <span class="required">*</span></label>
+            <input type="email" id="email" placeholder="e.g., contact@medpharma.lk" required>
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number <span class="required">*</span></label>
+            <input type="text" id="phone" placeholder="e.g., 011 234 5678" required>
+          </div>
+
+          <div class="form-group">
+            <label>Category <span class="required">*</span></label>
+            <select id="category" required>
+              <option value="">Select a category</option>
+              <option value="Tablets & Capsules">Tablets & Capsules</option>
+              <option value="Syrups & Liquids">Syrups & Liquids</option>
+              <option value="Injectables">Injectables</option>
+              <option value="Medical Equipment">Medical Equipment</option>
+              <option value="Medical Devices">Medical Devices</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Payment Terms</label>
+            <input type="text" id="paymentTerms" placeholder="e.g., Net 30 Days">
+          </div>
+
+          <div class="form-group full-width">
+            <label>Registered Office Address</label>
+            <textarea id="address" rows="2" placeholder="e.g., No. 45, Galle Road, Colombo 03, Sri Lanka"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Supplier Status</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="status" value="ACTIVE" checked> Active
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="status" value="INACTIVE"> Inactive
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-cancel" id="cancelFormBtn">Cancel</button>
+        <button type="submit" class="btn btn-save" id="saveSupplierBtn">Save Supplier</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

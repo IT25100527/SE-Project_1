@@ -1,68 +1,77 @@
-# Pharmacy Management System — User Management Module
+# Rx+ PHARMACORE — Pharmacy Management System
 
-Spring Boot MVC module covering **User Management**: customer registration/login,
-staff (admin-created) login, role-based dashboards, email verification, and
-admin CRUD over users — matching the `users / roles / permissions / role_permissions /
-login_logs / email_verification_tokens` tables from the shared schema. Other tables
-(medicine, inventory, prescriptions, purchase orders, suppliers, deliveries, stock
-receipts) belong to your teammates' modules and are not touched here.
+Spring Boot backend + the Supplier Management frontend, combined into a
+single runnable project. Add / View / Edit / Delete on the webpage all
+talk to a real REST API backed by your Aiven MySQL database.
 
-## Roles
-ADMIN, INVENTORY_MANAGER, DELIVERY_STAFF, PHARMACIST, CASHIER, PURCHASE_MANAGER, CUSTOMER
-— seeded automatically on first run (see `config/DataSeeder.java`).
+## What's included
 
-## Run it
+- `src/main/java/Pharmacy/Management/System/...` — the backend
+  (entity, repository, service, controller, DTOs, exception handling)
+- `src/main/resources/static/` — the frontend (`index.html`,
+  `style.css`, `script.js`). Spring Boot serves these automatically,
+  so opening `http://localhost:8080` shows the same page you designed,
+  now wired to the database.
+- `database.sql` — creates the `suppliers` table on your Aiven MySQL
+  database, and seeds the 3 sample suppliers from your original mockup.
+- `src/main/resources/application.properties` — already points at
+  your Aiven MySQL instance (same credentials you used before).
 
-1. Create a MySQL database (or let `createDatabaseIfNotExist=true` do it) and set
-   credentials in `src/main/resources/application.properties`.
-2. Set real Gmail SMTP credentials as env vars (or edit the properties file directly):
-   ```
-   export MAIL_USERNAME=you@gmail.com
-   export MAIL_APP_PASSWORD=your16charapppassword   # Gmail App Password, not your normal password
-   ```
-3. `mvn spring-boot:run`
-4. App runs at http://localhost:8080
+## 1. Set up the database (one-time)
 
-## URLs
+Connect to your Aiven MySQL database (MySQL Workbench, DBeaver, or
+IntelliJ's built-in Database tool window — `View → Tool Windows →
+Database → +  → Data Source → MySQL`, using the same host/port/user/
+password that's in `application.properties`), open `database.sql`,
+and run it. This creates the `suppliers` table and 3 sample rows
+(only if the table doesn't already have data).
 
-| Page | URL |
-|---|---|
-| Customer login | http://localhost:8080/customer/login |
-| Customer register | http://localhost:8080/customer/register.html |
-| Staff/Admin login | http://localhost:8080/manager/login |
-| Dashboard (role-aware) | http://localhost:8080/dashboard |
+## 2. Run it in IntelliJ
 
-Default seeded admin: `admin@pharmacy.com` / `Admin@123` — change the password after
-first login (an update endpoint is provided; a change-password UI is a good next step).
+1. Open the project folder in IntelliJ (`File → Open`, pick this
+   folder — the one with `pom.xml`).
+2. Let Maven finish downloading dependencies (bottom-right progress bar).
+3. Open `PharmacyManagementSystemApplication.java`
+   (`src/main/java/Pharmacy/Management/System/`) and click the green
+   ▶ run button.
+4. Once you see "Pharmacy Management System is running!" in the
+   console, open **http://localhost:8080** in your browser.
 
-## API summary
+That's it — no separate frontend server needed. The page, the API, and
+the database are all one app.
 
-- `POST /customer/register` — create customer account, sends email verification link
-- `GET  /customer/verify-email?token=...` — verifies email
-- `POST /customer/resend-verification?email=...`
-- `POST /customer/login` / `POST /customer/logout`
-- `POST /manager/login` / `POST /manager/logout` — any non-customer role
-- `GET  /api/session` — who's logged in + role (drives the dashboard UI)
-- `POST /api/admin/users/staff` — admin creates a staff account (any role except CUSTOMER)
-- `GET  /api/admin/users/staff` / `GET /api/admin/users/customers`
-- `GET  /api/admin/users/{id}` / `PUT /api/admin/users/{id}`
-- `PATCH /api/admin/users/{id}/status?status=ACTIVE|SUSPENDED|INACTIVE`
-- `DELETE /api/admin/users/{id}`
+## How the pages connect to the backend
 
-All `/api/admin/**` routes require an active session with role `ADMIN` (enforced by
-`AuthInterceptor`).
+| Action on the page                          | Calls                          |
+|------------------------------------------------|--------------------------------|
+| Page loads / table refreshes                    | `GET /api/suppliers`           |
+| Click **+ Add Supplier** → Save                 | `POST /api/suppliers`          |
+| Click **View**                                  | `GET /api/suppliers/{id}`      |
+| Click **Edit** (or "Edit Details" in the View modal) → Save | `PUT /api/suppliers/{id}` |
+| Click **Delete**                                | `DELETE /api/suppliers/{id}`   |
 
-## Notes / what still needs a decision from your team
+The **Add Supplier** and **Edit** buttons open the exact same form —
+when editing, it's pre-filled with that supplier's data and does a
+`PUT` instead of a `POST`.
 
-- **Phone verification**: only *format* validation is implemented (Sri Lankan mobile
-  regex). Real OTP-based phone verification needs an SMS gateway (e.g. Twilio, a local
-  SL SMS API) which isn't in the shared schema/tables — add a `phone_verification_tokens`
-  table + an SMS provider when you're ready and I can wire it the same way email
-  verification works.
-- Auth here is deliberately **not** Spring Security's form login — it's a manual
-  session (`HttpSession`) + `AuthInterceptor`, because the frontend talks to plain JSON
-  endpoints under `/customer/**` and `/manager/**`. Spring Security is only used for
-  `BCryptPasswordEncoder`.
-- Non-admin dashboards (Inventory Manager, Delivery Staff, Pharmacist, Cashier,
-  Purchase Manager, Customer) render their nav + stat-card layout using the shared CSS,
-  with placeholder content where each teammate's module plugs in later.
+## Troubleshooting
+
+- **"Could not connect to the server" toast in the browser** — the
+  backend isn't running yet, or it failed to start. Check the
+  IntelliJ Run console for the actual error (scroll to the red text).
+- **"Communications link failure" / connection timeout on startup** —
+  usually means your internet connection can't reach Aiven right now,
+  or the Aiven service is paused/sleeping (free Aiven services can
+  auto-pause after inactivity — check the Aiven console).
+- **"Access denied for user 'avnadmin'"** — the password in
+  `application.properties` doesn't match anymore (Aiven passwords can
+  be rotated from the Aiven console) — grab the current one from
+  Aiven and update it there.
+- **"Unknown database 'defaultdb'" or table not found** — make sure
+  you ran `database.sql` against the same database
+  (`defaultdb`) that's in the connection URL.
+
+> **Note on committing this project to Git/GitHub:** the database
+> password lives in `application.properties`. If you push this to a
+> public repository, remove the real password first (or move it to an
+> environment variable) so it isn't exposed.
