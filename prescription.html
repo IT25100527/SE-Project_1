@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prescription Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f5;
+            color: #26332b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: 240px;
+            background: #123d2a;
+            color: white;
+            min-height: 100vh;
+            padding: 25px 15px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #b8d8c4;
+        }
+
+        .nav-item {
+            display: block;
+            text-decoration: none;
+            color: #dcebe2;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: #1d5b3f;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #2f8f61;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 240px;
+            padding: 32px 40px 60px;
+            width: calc(100% - 240px);
+            min-width: 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #173d2b;
+        }
+
+        .page-header p {
+            color: #718078;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .btn {
+            border: none;
+            border-radius: 7px;
+            padding: 10px 17px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #2f8f61;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #26764f;
+        }
+
+        .btn-secondary {
+            background: #e4ebe7;
+            color: #304238;
+        }
+
+        .btn-secondary:hover {
+            background: #d5dfd9;
+        }
+
+        .btn-edit {
+            background: #edf5ef;
+            color: #26764f;
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background: #fbecec;
+            color: #c0392b;
+        }
+
+        /* ================= CONTENT CARD ================= */
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid #e7eee9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            color: #244334;
+        }
+
+        .search {
+            width: 260px;
+            padding: 10px 13px;
+            border: 1px solid #d6e1da;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search:focus {
+            border-color: #2f8f61;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f1f6f3;
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            color: #486054;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-top: 1px solid #edf1ee;
+            font-size: 14px;
+            color: #35443b;
+        }
+
+        tbody tr:hover {
+            background: #f8fbf9;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 35px;
+            color: #87958d;
+        }
+
+        /* ================= STATUS ================= */
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #e8f5ed;
+            color: #26764f;
+        }
+
+        .status-pending {
+            background: #fff4df;
+            color: #b7791f;
+        }
+
+        .status-completed {
+            background: #e9f0f7;
+            color: #35658a;
+        }
+
+        .status-cancelled {
+            background: #fbecec;
+            color: #c0392b;
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .modal-header h2 {
+            color: #173d2b;
+            font-size: 21px;
+        }
+
+        .close {
+            font-size: 25px;
+            cursor: pointer;
+            color: #89968e;
+        }
+
+        .close:hover {
+            color: #26332b;
+        }
+
+        /* ================= FORM ================= */
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #3c5145;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d5e0d9;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #2f8f61;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 800px) {
+
+            .sidebar {
+                width: 190px;
+            }
+
+            .main {
+                margin-left: 190px;
+                width: calc(100% - 190px);
+                padding: 25px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>PharmaCare</h2>
+        <p>Pharmacy Management System</p>
+    </div>
+
+    <a class="nav-item" href="/medicine.html">
+        Medicine
+    </a>
+
+    <a class="nav-item" href="/inventory.html">
+        Inventory
+    </a>
+
+    <a class="nav-item active" href="/prescription.html">
+        Prescriptions
+    </a>
+
+    <a class="nav-item" href="/prescription-item.html">
+        Prescription Items
+    </a>
+
+</div>
+
+
+<!-- ================= MAIN CONTENT ================= -->
+
+<div class="main">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Prescription Management</h1>
+            <p>Manage prescription records and prescription details.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="openAddModal()">
+            + Add Prescription
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>Prescription List</h2>
+
+            <input
+                    class="search"
+                    id="search"
+                    type="text"
+                    placeholder="Search prescriptions..."
+                    oninput="searchPrescriptions()"
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Prescription Date</th>
+                    <th>Doctor Name</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="prescriptionTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= ADD / EDIT MODAL ================= -->
+
+<div class="modal" id="prescriptionModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">Add Prescription</h2>
+
+            <span class="close" onclick="closeModal()">
+                &times;
+            </span>
+
+        </div>
+
+
+        <form id="prescriptionForm">
+
+            <input type="hidden" id="presId">
+
+
+            <div class="form-group">
+
+                <label for="presDate">
+                    Prescription Date
+                </label>
+
+                <input
+                        type="date"
+                        id="presDate"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="docName">
+                    Doctor Name
+                </label>
+
+                <input
+                        type="text"
+                        id="docName"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="status">
+                    Status
+                </label>
+
+                <select id="status">
+
+                    <option value="">
+                        Select Status
+                    </option>
+
+                    <option value="Pending">
+                        Pending
+                    </option>
+
+                    <option value="Active">
+                        Active
+                    </option>
+
+                    <option value="Completed">
+                        Completed
+                    </option>
+
+                    <option value="Cancelled">
+                        Cancelled
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                >
+                    Save Prescription
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API = "/api/prescriptions";
+
+    let prescriptions = [];
+
+
+    // ================= LOAD PRESCRIPTIONS =================
+
+    async function loadPrescriptions() {
+
+        try {
+
+            const response = await fetch(API);
+
+            if (!response.ok) {
+                throw new Error("Failed to load prescriptions");
+            }
+
+            prescriptions = await response.json();
+
+            displayPrescriptions(prescriptions);
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("prescriptionTable").innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-message">
+                        Unable to load prescriptions.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+
+    // ================= DISPLAY PRESCRIPTIONS =================
+
+    function displayPrescriptions(data) {
+
+        const table =
+            document.getElementById("prescriptionTable");
+
+        table.innerHTML = "";
+
+
+        if (data.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-message">
+                        No prescriptions found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        data.forEach(prescription => {
+
+            const row =
+                document.createElement("tr");
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${prescription.presId}
+                </td>
+
+                <td>
+                    ${prescription.presDate || "-"}
+                </td>
+
+                <td>
+                    ${prescription.docName || "-"}
+                </td>
+
+                <td>
+                    ${getStatusBadge(prescription.status)}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-edit"
+                        onclick="editPrescription(${prescription.presId})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="btn btn-delete"
+                        onclick="deletePrescription(${prescription.presId})"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+
+            table.appendChild(row);
+
+        });
+
+    }
+
+
+    // ================= STATUS BADGE =================
+
+    function getStatusBadge(status) {
+
+        if (!status) {
+            return "-";
+        }
+
+
+        const normalized =
+            status.toLowerCase();
+
+
+        if (normalized === "active") {
+
+            return `
+                <span class="status status-active">
+                    Active
+                </span>
+            `;
+
+        }
+
+
+        if (normalized === "pending") {
+
+            return `
+                <span class="status status-pending">
+                    Pending
+                </span>
+            `;
+
+        }
+
+
+        if (normalized === "completed") {
+
+            return `
+                <span class="status status-completed">
+                    Completed
+                </span>
+            `;
+
+        }
+
+
+        if (normalized === "cancelled") {
+
+            return `
+                <span class="status status-cancelled">
+                    Cancelled
+                </span>
+            `;
+
+        }
+
+
+        return status;
+
+    }
+
+
+    // ================= SEARCH =================
+
+    function searchPrescriptions() {
+
+        const searchValue =
+            document.getElementById("search")
+                .value
+                .toLowerCase()
+                .trim();
+
+
+        const filtered =
+            prescriptions.filter(prescription => {
+
+                return (
+
+                    String(prescription.presId)
+                        .toLowerCase()
+                        .includes(searchValue)
+
+                    ||
+
+                    (prescription.docName || "")
+                        .toLowerCase()
+                        .includes(searchValue)
+
+                    ||
+
+                    (prescription.status || "")
+                        .toLowerCase()
+                        .includes(searchValue)
+
+                    ||
+
+                    (prescription.presDate || "")
+                        .toLowerCase()
+                        .includes(searchValue)
+
+                );
+
+            });
+
+
+        displayPrescriptions(filtered);
+
+    }
+
+
+    // ================= OPEN ADD MODAL =================
+
+    function openAddModal() {
+
+        document.getElementById("modalTitle").textContent =
+            "Add Prescription";
+
+        document.getElementById("prescriptionForm").reset();
+
+        document.getElementById("presId").value = "";
+
+        document.getElementById("prescriptionModal").style.display =
+            "flex";
+
+    }
+
+
+    // ================= CLOSE MODAL =================
+
+    function closeModal() {
+
+        document.getElementById("prescriptionModal").style.display =
+            "none";
+
+    }
+
+
+    // ================= EDIT PRESCRIPTION =================
+
+    function editPrescription(id) {
+
+        const prescription =
+            prescriptions.find(
+                item => item.presId === id
+            );
+
+
+        if (!prescription) {
+            return;
+        }
+
+
+        document.getElementById("modalTitle").textContent =
+            "Edit Prescription";
+
+
+        document.getElementById("presId").value =
+            prescription.presId;
+
+
+        document.getElementById("presDate").value =
+            prescription.presDate || "";
+
+
+        document.getElementById("docName").value =
+            prescription.docName || "";
+
+
+        document.getElementById("status").value =
+            prescription.status || "";
+
+
+        document.getElementById("prescriptionModal").style.display =
+            "flex";
+
+    }
+
+
+    // ================= SAVE PRESCRIPTION =================
+
+    document
+        .getElementById("prescriptionForm")
+        .addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                const id =
+                    document.getElementById("presId")
+                        .value;
+
+
+                const prescriptionData = {
+
+                    presDate:
+                        document.getElementById("presDate")
+                            .value || null,
+
+                    docName:
+                        document.getElementById("docName")
+                            .value.trim(),
+
+                    status:
+                    document.getElementById("status")
+                        .value
+
+                };
+
+
+                try {
+
+                    let response;
+
+
+                    if (id) {
+
+                        response =
+                            await fetch(
+                                `${API}/${id}`,
+                                {
+                                    method: "PUT",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            prescriptionData
+                                        )
+                                }
+                            );
+
+                    } else {
+
+                        response =
+                            await fetch(
+                                API,
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            prescriptionData
+                                        )
+                                }
+                            );
+
+                    }
+
+
+                    if (!response.ok) {
+
+                        const errorText =
+                            await response.text();
+
+                        throw new Error(
+                            errorText ||
+                            "Save failed"
+                        );
+
+                    }
+
+
+                    closeModal();
+
+                    await loadPrescriptions();
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    alert(
+                        "Unable to save prescription.\n\n" +
+                        error.message
+                    );
+
+                }
+
+            }
+        );
+
+
+    // ================= DELETE PRESCRIPTION =================
+
+    async function deletePrescription(id) {
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete this prescription?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                const errorText =
+                    await response.text();
+
+                throw new Error(
+                    errorText ||
+                    "Delete failed"
+                );
+
+            }
+
+
+            await loadPrescriptions();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Unable to delete prescription.\n\n" +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // ================= CLOSE MODAL OUTSIDE CLICK =================
+
+    window.onclick = function(event) {
+
+        const modal =
+            document.getElementById("prescriptionModal");
+
+
+        if (event.target === modal) {
+            closeModal();
+        }
+
+    };
+
+
+    // ================= INITIAL LOAD =================
+
+    loadPrescriptions();
+
+</script>
+
+</body>
+</html>

@@ -1,51 +1,52 @@
-package com.pharmacy.sales.service;
+package Pharmacy.Management.System.service;
 
-import com.pharmacy.sales.exception.ResourceNotFoundException;
-import com.pharmacy.sales.model.Medicine;
-import com.pharmacy.sales.repository.MedicineRepository;
-import org.springframework.data.domain.Sort;
+import Pharmacy.Management.System.model.Medicine;
+import Pharmacy.Management.System.repository.MedicineRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-public class MedicineService {
+public class MedicineService
+{
+    private final MedicineRepository medicineRepository;
 
-    private final MedicineRepository repo;
-
-    public MedicineService(MedicineRepository repo) { this.repo = repo; }
-
-    public List<Medicine> search(String q) {
-        if (q == null || q.isBlank()) return repo.findAll(Sort.by("name"));
-        return repo.findByNameContainingIgnoreCaseOrderByNameAsc(q.trim());
+    public MedicineService(MedicineRepository medicineRepository)
+    {
+        this.medicineRepository = medicineRepository;
     }
 
-    public Medicine get(Long id) {
-        return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Medicine " + id + " not found"));
+    public List<Medicine> getAllMedicines()
+    {
+        return medicineRepository.findAll();
     }
 
-    @Transactional
-    public Medicine create(Medicine m) {
-        m.setId(null);
-        return repo.save(m);
+    public Optional<Medicine> getMedicinesById(Long id)
+    {
+        return medicineRepository.findById(id);
     }
 
-    @Transactional
-    public Medicine update(Long id, Medicine in) {
-        Medicine m = get(id);
-        m.setName(in.getName());
-        m.setBatchNo(in.getBatchNo());
-        m.setCategory(in.getCategory());
-        m.setUnitPrice(in.getUnitPrice());
-        m.setQuantityInStock(in.getQuantityInStock());
-        m.setExpiryDate(in.getExpiryDate());
-        m.setReorderLevel(in.getReorderLevel());
-        return repo.save(m);
+    public Medicine saveMedicine(Medicine medicine)
+    {
+        return medicineRepository.save(medicine);
     }
 
-    @Transactional
-    public void delete(Long id) {
-        repo.delete(get(id));
+    public Medicine updateMedicine(Long id, Medicine medicineDetails)
+    {
+        Medicine medicine = medicineRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medicine not found"));
+
+        medicine.setMedName(medicineDetails.getMedName());
+        medicine.setCategory(medicineDetails.getCategory());
+        medicine.setManufacturer(medicineDetails.getManufacturer());
+        medicine.setDescription(medicineDetails.getDescription());
+        medicine.setUnitPrice(medicineDetails.getUnitPrice());
+
+        return medicineRepository.save(medicine);
+    }
+
+    public void deleteMedicine(Long id) {
+        medicineRepository.deleteById(id);
     }
 }

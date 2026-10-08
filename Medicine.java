@@ -1,33 +1,39 @@
-package com.pharmacy.sales.model;
+package Pharmacy.Management.System.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Immutable;
 
 import java.math.BigDecimal;
 
-/** READ-ONLY view of the medicine catalogue owned by another team member (table: medicine). */
 @Entity
-@Immutable
 @Table(name = "medicine")
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Medicine {
 
     @Id
-    @Column(name = "med_id")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long medId;
 
-    @Column(name = "med_name")
-    private String name;
+    @Column(nullable = false)
+    private String medName;
 
     private String category;
+
     private String manufacturer;
 
-    @Column(name = "unit_price")
+    private String description;
+
+    @Column(nullable = false)
     private BigDecimal unitPrice;
+
+    @JsonManagedReference
+    @OneToOne(mappedBy = "medicine", cascade = CascadeType.ALL)
+    private Inventory inventory;
 }

@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Management</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f5;
+            color: #26332b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ================= SIDEBAR ================= */
+
+        .sidebar {
+            width: 240px;
+            background: #123d2a;
+            color: white;
+            min-height: 100vh;
+            padding: 25px 15px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #b8d8c4;
+        }
+
+        .nav-item {
+            display: block;
+            text-decoration: none;
+            color: #dcebe2;
+            padding: 13px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .nav-item:hover {
+            background: #1d5b3f;
+            color: white;
+        }
+
+        .nav-item.active {
+            background: #2f8f61;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* ================= MAIN ================= */
+
+        .main {
+            margin-left: 240px;
+            padding: 32px 40px 60px;
+            width: calc(100% - 240px);
+            min-width: 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #173d2b;
+        }
+
+        .page-header p {
+            color: #718078;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        .btn {
+            border: none;
+            border-radius: 7px;
+            padding: 10px 17px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #2f8f61;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #26764f;
+        }
+
+        .btn-secondary {
+            background: #e4ebe7;
+            color: #304238;
+        }
+
+        .btn-secondary:hover {
+            background: #d5dfd9;
+        }
+
+        .btn-edit {
+            background: #edf5ef;
+            color: #26764f;
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background: #fbecec;
+            color: #c0392b;
+        }
+
+        /* ================= CONTENT CARD ================= */
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid #e7eee9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            color: #244334;
+        }
+
+        .search {
+            width: 260px;
+            padding: 10px 13px;
+            border: 1px solid #d6e1da;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search:focus {
+            border-color: #2f8f61;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f1f6f3;
+        }
+
+        th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            color: #486054;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-top: 1px solid #edf1ee;
+            font-size: 14px;
+            color: #35443b;
+        }
+
+        tbody tr:hover {
+            background: #f8fbf9;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #26764f;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 35px;
+            color: #87958d;
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .modal-header h2 {
+            color: #173d2b;
+            font-size: 21px;
+        }
+
+        .close {
+            font-size: 25px;
+            cursor: pointer;
+            color: #89968e;
+        }
+
+        .close:hover {
+            color: #26332b;
+        }
+
+        /* ================= FORM ================= */
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #3c5145;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d5e0d9;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #2f8f61;
+        }
+
+        .form-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 800px) {
+
+            .sidebar {
+                width: 190px;
+            }
+
+            .main {
+                margin-left: 190px;
+                width: calc(100% - 190px);
+                padding: 25px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>PharmaCare</h2>
+        <p>Pharmacy Management System</p>
+    </div>
+
+    <a class="nav-item active" href="/medicine.html">
+        Medicine
+    </a>
+
+    <a class="nav-item" href="/inventory.html">
+        Inventory
+    </a>
+
+    <a class="nav-item" href="/prescription.html">
+        Prescriptions
+    </a>
+
+    <a class="nav-item" href="/prescription-item.html">
+        Prescription Items
+    </a>
+
+</div>
+
+
+<!-- ================= MAIN CONTENT ================= -->
+
+<div class="main">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Medicine Management</h1>
+            <p>Manage medicines and their basic information.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="openAddModal()">
+            + Add Medicine
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>Medicine List</h2>
+
+            <input
+                    class="search"
+                    id="search"
+                    type="text"
+                    placeholder="Search medicines..."
+                    oninput="searchMedicines()"
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Manufacturer</th>
+                    <th>Description</th>
+                    <th>Unit Price</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="medicineTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= ADD / EDIT MODAL ================= -->
+
+<div class="modal" id="medicineModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">Add Medicine</h2>
+
+            <span class="close" onclick="closeModal()">
+                &times;
+            </span>
+
+        </div>
+
+
+        <form id="medicineForm">
+
+            <input type="hidden" id="medId">
+
+
+            <div class="form-group">
+
+                <label for="medName">
+                    Medicine Name *
+                </label>
+
+                <input
+                        type="text"
+                        id="medName"
+                        required
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <input
+                        type="text"
+                        id="category"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="manufacturer">
+                    Manufacturer
+                </label>
+
+                <input
+                        type="text"
+                        id="manufacturer"
+                >
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="description">
+                    Description
+                </label>
+
+                <textarea
+                        id="description"
+                ></textarea>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="unitPrice">
+                    Unit Price *
+                </label>
+
+                <input
+                        type="number"
+                        id="unitPrice"
+                        step="0.01"
+                        min="0"
+                        required
+                >
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                        type="submit"
+                        class="btn btn-primary"
+                >
+                    Save Medicine
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API = "/api/medicines";
+
+    let medicines = [];
+
+
+    // ================= LOAD MEDICINES =================
+
+    async function loadMedicines() {
+
+        try {
+
+            const response = await fetch(API);
+
+            if (!response.ok) {
+                throw new Error("Failed to load medicines");
+            }
+
+            medicines = await response.json();
+
+            displayMedicines(medicines);
+
+        } catch (error) {
+
+            console.error(error);
+
+            document.getElementById("medicineTable").innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-message">
+                        Unable to load medicines.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+
+    // ================= DISPLAY MEDICINES =================
+
+    function displayMedicines(data) {
+
+        const table = document.getElementById("medicineTable");
+
+        table.innerHTML = "";
+
+        if (data.length === 0) {
+
+            table.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-message">
+                        No medicines found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+
+        data.forEach(medicine => {
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+
+                <td>${medicine.medId}</td>
+
+                <td>
+                    <strong>${medicine.medName}</strong>
+                </td>
+
+                <td>
+                    ${medicine.category || "-"}
+                </td>
+
+                <td>
+                    ${medicine.manufacturer || "-"}
+                </td>
+
+                <td>
+                    ${medicine.description || "-"}
+                </td>
+
+                <td class="price">
+                    Rs. ${Number(medicine.unitPrice).toFixed(2)}
+                </td>
+
+                <td>
+
+                    <button
+                        class="btn btn-edit"
+                        onclick="editMedicine(${medicine.medId})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="btn btn-delete"
+                        onclick="deleteMedicine(${medicine.medId})"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+            table.appendChild(row);
+
+        });
+
+    }
+
+
+    // ================= SEARCH =================
+
+    function searchMedicines() {
+
+        const searchValue =
+            document.getElementById("search").value
+                .toLowerCase()
+                .trim();
+
+
+        const filtered = medicines.filter(medicine => {
+
+            return (
+
+                String(medicine.medId)
+                    .toLowerCase()
+                    .includes(searchValue)
+
+                ||
+
+                (medicine.medName || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+
+                ||
+
+                (medicine.category || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+
+                ||
+
+                (medicine.manufacturer || "")
+                    .toLowerCase()
+                    .includes(searchValue)
+
+            );
+
+        });
+
+
+        displayMedicines(filtered);
+
+    }
+
+
+    // ================= OPEN ADD MODAL =================
+
+    function openAddModal() {
+
+        document.getElementById("modalTitle").textContent =
+            "Add Medicine";
+
+        document.getElementById("medicineForm").reset();
+
+        document.getElementById("medId").value = "";
+
+        document.getElementById("medicineModal").style.display =
+            "flex";
+
+    }
+
+
+    // ================= CLOSE MODAL =================
+
+    function closeModal() {
+
+        document.getElementById("medicineModal").style.display =
+            "none";
+
+    }
+
+
+    // ================= EDIT MEDICINE =================
+
+    function editMedicine(id) {
+
+        const medicine =
+            medicines.find(m => m.medId === id);
+
+        if (!medicine) {
+            return;
+        }
+
+
+        document.getElementById("modalTitle").textContent =
+            "Edit Medicine";
+
+
+        document.getElementById("medId").value =
+            medicine.medId;
+
+
+        document.getElementById("medName").value =
+            medicine.medName || "";
+
+
+        document.getElementById("category").value =
+            medicine.category || "";
+
+
+        document.getElementById("manufacturer").value =
+            medicine.manufacturer || "";
+
+
+        document.getElementById("description").value =
+            medicine.description || "";
+
+
+        document.getElementById("unitPrice").value =
+            medicine.unitPrice || "";
+
+
+        document.getElementById("medicineModal").style.display =
+            "flex";
+
+    }
+
+
+    // ================= SAVE MEDICINE =================
+
+    document
+        .getElementById("medicineForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+
+            const id =
+                document.getElementById("medId").value;
+
+
+            const medicine = {
+
+                medName:
+                    document.getElementById("medName").value.trim(),
+
+                category:
+                    document.getElementById("category").value.trim(),
+
+                manufacturer:
+                    document.getElementById("manufacturer").value.trim(),
+
+                description:
+                    document.getElementById("description").value.trim(),
+
+                unitPrice:
+                    parseFloat(
+                        document.getElementById("unitPrice").value
+                    )
+
+            };
+
+
+            try {
+
+                let response;
+
+
+                if (id) {
+
+                    response = await fetch(
+                        `${API}/${id}`,
+                        {
+                            method: "PUT",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify(medicine)
+                        }
+                    );
+
+                } else {
+
+                    response = await fetch(
+                        API,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+
+                            body: JSON.stringify(medicine)
+                        }
+                    );
+
+                }
+
+
+                if (!response.ok) {
+
+                    const errorText =
+                        await response.text();
+
+                    throw new Error(errorText || "Save failed");
+
+                }
+
+
+                closeModal();
+
+                await loadMedicines();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Unable to save medicine.\n\n" +
+                    error.message
+                );
+
+            }
+
+        });
+
+
+    // ================= DELETE MEDICINE =================
+
+    async function deleteMedicine(id) {
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete this medicine?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API}/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                const errorText =
+                    await response.text();
+
+                throw new Error(
+                    errorText || "Delete failed"
+                );
+
+            }
+
+
+            await loadMedicines();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Unable to delete medicine.\n\n" +
+                error.message
+            );
+
+        }
+
+    }
+
+
+    // ================= CLOSE MODAL WHEN CLICKING OUTSIDE =================
+
+    window.onclick = function(event) {
+
+        const modal =
+            document.getElementById("medicineModal");
+
+
+        if (event.target === modal) {
+            closeModal();
+        }
+
+    };
+
+
+    // ================= INITIAL LOAD =================
+
+    loadMedicines();
+
+</script>
+
+</body>
+</html>

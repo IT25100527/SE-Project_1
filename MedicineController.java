@@ -1,9 +1,7 @@
-package com.pharmacy.sales.controller;
+package Pharmacy.Management.System.controller;
 
-import com.pharmacy.sales.model.Medicine;
-import com.pharmacy.sales.service.MedicineService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
+import Pharmacy.Management.System.model.Medicine;
+import Pharmacy.Management.System.service.MedicineService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,28 +10,34 @@ import java.util.List;
 @RequestMapping("/api/medicines")
 public class MedicineController {
 
-    private final MedicineService service;
+    private final MedicineService medicineService;
 
-    public MedicineController(MedicineService service) { this.service = service; }
+    public MedicineController(MedicineService medicineService) {
+        this.medicineService = medicineService;
+    }
 
     @GetMapping
-    public List<Medicine> list(@RequestParam(required = false) String search) {
-        return service.search(search);
+    public List<Medicine> getAllMedicine() {
+        return medicineService.getAllMedicines();
     }
 
     @GetMapping("/{id}")
-    public Medicine get(@PathVariable Long id) { return service.get(id); }
+    public Medicine getMedicineById(@PathVariable Long id) {
+        return medicineService.getMedicinesById(id).orElse(null);
+    }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Medicine create(@Valid @RequestBody Medicine medicine) { return service.create(medicine); }
+    public Medicine createMedicine(@RequestBody Medicine medicine) {
+        return medicineService.saveMedicine(medicine);
+    }
 
     @PutMapping("/{id}")
-    public Medicine update(@PathVariable Long id, @Valid @RequestBody Medicine medicine) {
-        return service.update(id, medicine);
+    public Medicine updateMedicine(@PathVariable Long id, @RequestBody Medicine medicine) {
+        return medicineService.updateMedicine(id, medicine);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) { service.delete(id); }
+    public void deleteMedicine(@PathVariable Long id) {
+        medicineService.deleteMedicine(id);
+    }
 }

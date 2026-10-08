@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - PharmaCare</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f8f5;
+            color: #26332b;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 240px;
+            background: #123d2a;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            padding: 25px 18px;
+            color: white;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .logo h2 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .logo p {
+            font-size: 12px;
+            color: #b8d8c4;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 8px;
+        }
+
+        .nav-links a {
+            display: block;
+            text-decoration: none;
+            color: #dcebe2;
+            padding: 13px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: #20583d;
+        }
+
+        .nav-links a.active {
+            background: #2f8f61;
+            color: white;
+        }
+
+        /* MAIN */
+        .main {
+            margin-left: 240px;
+            padding: 32px 40px 60px;
+            width: calc(100% - 240px);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            color: #173d2b;
+            margin-bottom: 6px;
+        }
+
+        .page-header p {
+            color: #66756c;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #2f8f61;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #26764f;
+        }
+
+        /* CARD */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, .06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid #e4ebe6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            color: #173d2b;
+        }
+
+        .search-box {
+            width: 260px;
+            padding: 10px 13px;
+            border: 1px solid #d5e0d9;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            border-color: #2f8f61;
+        }
+
+        /* TABLE */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f6f3;
+            color: #405148;
+            font-size: 13px;
+            text-align: left;
+            padding: 14px 15px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 15px;
+            border-top: 1px solid #edf1ee;
+            font-size: 14px;
+            color: #35443b;
+            white-space: nowrap;
+        }
+
+        tr:hover td {
+            background: #fafcfb;
+        }
+
+        /* ACTION BUTTONS */
+        .btn-edit {
+            background: #e4f3eb;
+            color: #26764f;
+            border: none;
+            padding: 7px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .btn-delete {
+            background: #fde8e8;
+            color: #c84b4b;
+            border: none;
+            padding: 7px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-edit:hover {
+            background: #d4ebdf;
+        }
+
+        .btn-delete:hover {
+            background: #f8d5d5;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, .45);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .modal-header h2 {
+            color: #173d2b;
+            font-size: 20px;
+        }
+
+        .close {
+            font-size: 25px;
+            color: #7b8981;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #405148;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d5e0d9;
+            border-radius: 7px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #2f8f61;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 22px;
+        }
+
+        .btn-cancel {
+            background: #eef2ef;
+            color: #405148;
+            border: none;
+            padding: 10px 17px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        /* STATUS */
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .status-in-stock {
+            background: #e4f3eb;
+            color: #26764f;
+        }
+
+        .status-low-stock {
+            background: #fff3d9;
+            color: #9a6a16;
+        }
+
+        .status-out-stock {
+            background: #fde8e8;
+            color: #c84b4b;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .main {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+                padding: 25px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                min-height: auto;
+            }
+
+            body {
+                display: block;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+
+            .search-box {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+    <div class="logo">
+        <h2>PharmaCare</h2>
+        <p>Pharmacy Management System</p>
+    </div>
+
+    <ul class="nav-links">
+        <li>
+            <a href="/medicine.html">Medicine</a>
+        </li>
+
+        <li>
+            <a href="/inventory.html" class="active">Inventory</a>
+        </li>
+
+        <li>
+            <a href="/prescription.html">Prescription</a>
+        </li>
+
+        <li>
+            <a href="/prescription-item.html">Prescription Items</a>
+        </li>
+    </ul>
+
+</div>
+
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Inventory Management</h1>
+            <p>Manage medicine stock, quantities and expiry information.</p>
+        </div>
+
+        <button class="btn-primary" onclick="openAddModal()">
+            + Add Inventory
+        </button>
+
+    </div>
+
+
+    <div class="card">
+
+        <div class="card-header">
+
+            <h2>Inventory List</h2>
+
+            <input
+                    type="text"
+                    id="searchInput"
+                    class="search-box"
+                    placeholder="Search inventory..."
+                    onkeyup="searchInventory()"
+            >
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table>
+
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Medicine ID</th>
+                    <th>Quantity</th>
+                    <th>Reorder Level</th>
+                    <th>Stock Status</th>
+                    <th>Manufacturing Date</th>
+                    <th>Expiry Date</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="inventoryTableBody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL -->
+<div class="modal" id="inventoryModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2 id="modalTitle">Add Inventory</h2>
+
+            <span class="close" onclick="closeModal()">&times;</span>
+
+        </div>
+
+
+        <form id="inventoryForm">
+
+            <input type="hidden" id="inventoryId">
+
+            <div class="form-group">
+                <label>Medicine</label>
+
+                <select id="medicineId" required>
+                    <option value="">Select Medicine</option>
+                </select>
+            </div>
+
+
+            <div class="form-group">
+                <label>Quantity</label>
+
+                <input
+                        type="number"
+                        id="Qty"
+                        min="0"
+                        required
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label>Reorder Level</label>
+
+                <input
+                        type="number"
+                        id="reorderLvl"
+                        min="0"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label>Stock Status</label>
+
+                <select id="stockStat" required>
+
+                    <option value="">Select Status</option>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+                <label>Manufacturing Date</label>
+
+                <input
+                        type="date"
+                        id="manDate"
+                >
+            </div>
+
+
+            <div class="form-group">
+                <label>Expiry Date</label>
+
+                <input
+                        type="date"
+                        id="expDate"
+                >
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                        type="button"
+                        class="btn-cancel"
+                        onclick="closeModal()"
+                >
+                    Cancel
+                </button>
+
+                <button
+                        type="submit"
+                        class="btn-primary"
+                >
+                    Save
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    const API = "/api/inventory";
+    const MEDICINE_API = "/api/medicines";
+
+    let inventoryData = [];
+    let editingId = null;
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadInventory();
+        loadMedicines();
+
+        document
+            .getElementById("inventoryForm")
+            .addEventListener("submit", saveInventory);
+    });
+
+
+    /* LOAD INVENTORY */
+
+    async function loadInventory() {
+
+        try {
+
+            const response = await fetch(API);
+
+            if (!response.ok) {
+                throw new Error("Failed to load inventory");
+            }
+
+            inventoryData = await response.json();
+
+            displayInventory(inventoryData);
+
+        } catch (error) {
+
+            console.error(error);
+            alert("Unable to load inventory.");
+
+        }
+
+    }
+
+
+    /* DISPLAY INVENTORY */
+
+    function displayInventory(data) {
+
+        const tableBody =
+            document.getElementById("inventoryTableBody");
+
+        tableBody.innerHTML = "";
+
+        data.forEach(item => {
+
+            const row = document.createElement("tr");
+
+            let statusClass = "";
+
+            if (item.stockStat === "In Stock") {
+                statusClass = "status-in-stock";
+            } else if (item.stockStat === "Low Stock") {
+                statusClass = "status-low-stock";
+            } else if (item.stockStat === "Out of Stock") {
+                statusClass = "status-out-stock";
+            }
+
+            const medicineId =
+                item.medicine ? item.medicine.medId : "-";
+
+            row.innerHTML = `
+
+                <td>${item.inventoryId ?? ""}</td>
+
+                <td>${medicineId}</td>
+
+                <td>${item.qtyAvaialble ?? ""}</td>
+
+                <td>${item.reorderLvl ?? ""}</td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${item.stockStat ?? ""}
+                    </span>
+                </td>
+
+                <td>${item.manDate ?? ""}</td>
+
+                <td>${item.expDate ?? ""}</td>
+
+                <td>
+
+                    <button
+                        class="btn-edit"
+                        onclick="editInventory(${item.inventoryId})"
+                    >
+                        Edit
+                    </button>
+
+                    <button
+                        class="btn-delete"
+                        onclick="deleteInventory(${item.inventoryId})"
+                    >
+                        Delete
+                    </button>
+
+                </td>
+
+            `;
+
+            tableBody.appendChild(row);
+
+        });
+
+    }
+
+
+    /* LOAD MEDICINES */
+
+    async function loadMedicines() {
+
+        try {
+
+            const response = await fetch(MEDICINE_API);
+
+            if (!response.ok) {
+                throw new Error("Failed to load medicines");
+            }
+
+            const medicines = await response.json();
+
+            const select =
+                document.getElementById("medicineId");
+
+            select.innerHTML =
+                '<option value="">Select Medicine</option>';
+
+            medicines.forEach(medicine => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = medicine.medId;
+
+                option.textContent =
+                    `${medicine.medId} - ${medicine.medName}`;
+
+                select.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    }
+
+
+    /* OPEN ADD MODAL */
+
+    function openAddModal() {
+
+        editingId = null;
+
+        document.getElementById("modalTitle").textContent =
+            "Add Inventory";
+
+        document.getElementById("inventoryForm").reset();
+
+        document.getElementById("inventoryId").value = "";
+
+        document.getElementById("inventoryModal").style.display =
+            "flex";
+
+    }
+
+
+    /* EDIT */
+
+    function editInventory(id) {
+
+        const item =
+            inventoryData.find(i => i.inventoryId === id);
+
+        if (!item) return;
+
+        editingId = id;
+
+        document.getElementById("modalTitle").textContent =
+            "Edit Inventory";
+
+        document.getElementById("inventoryId").value =
+            item.inventoryId;
+
+        document.getElementById("medicineId").value =
+            item.medicine ? item.medicine.medId : "";
+
+        document.getElementById("Qty").value =
+            item.qtyAvaialble ?? "";
+
+        document.getElementById("reorderLvl").value =
+            item.reorderLvl ?? "";
+
+        document.getElementById("stockStat").value =
+            item.stockStat ?? "";
+
+        document.getElementById("manDate").value =
+            item.manDate ?? "";
+
+        document.getElementById("expDate").value =
+            item.expDate ?? "";
+
+        document.getElementById("inventoryModal").style.display =
+            "flex";
+
+    }
+
+
+    /* SAVE */
+
+    async function saveInventory(event) {
+
+        event.preventDefault();
+
+        const medicineId =
+            document.getElementById("medicineId").value;
+
+        const data = {
+
+            qtyAvaialble: parseInt(
+                document.getElementById("Qty").value
+            ),
+
+            reorderLvl:
+                document.getElementById("reorderLvl").value
+                    ? parseInt(document.getElementById("reorderLvl").value)
+                    : null,
+
+            stockStat:
+            document.getElementById("stockStat").value,
+
+            manDate:
+                document.getElementById("manDate").value || null,
+
+            expDate:
+                document.getElementById("expDate").value || null,
+
+            medicine: {
+                medId: parseInt(medicineId)
+            }
+
+        };
+
+
+        try {
+
+            const url =
+                editingId
+                    ? `${API}/${editingId}`
+                    : API;
+
+            const method =
+                editingId
+                    ? "PUT"
+                    : "POST";
+
+            const response =
+                await fetch(url, {
+
+                    method: method,
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify(data)
+
+                });
+
+
+            if (!response.ok) {
+                throw new Error("Failed to save inventory");
+            }
+
+            closeModal();
+
+            await loadInventory();
+
+        } catch (error) {
+
+            console.error(error);
+            alert("Unable to save inventory.");
+
+        }
+
+    }
+
+
+    /* DELETE */
+
+    async function deleteInventory(id) {
+
+        if (!confirm("Are you sure you want to delete this inventory record?")) {
+            return;
+        }
+
+        try {
+
+            const response =
+                await fetch(`${API}/${id}`, {
+                    method: "DELETE"
+                });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete inventory");
+            }
+
+            await loadInventory();
+
+        } catch (error) {
+
+            console.error(error);
+            alert("Unable to delete inventory.");
+
+        }
+
+    }
+
+
+    /* SEARCH */
+
+    function searchInventory() {
+
+        const search =
+            document
+                .getElementById("searchInput")
+                .value
+                .toLowerCase();
+
+        const filtered =
+            inventoryData.filter(item => {
+
+                const medicineId =
+                    item.medicine
+                        ? item.medicine.medId.toString()
+                        : "";
+
+                return (
+
+                    item.inventoryId
+                        ?.toString()
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    medicineId
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.Qty
+                        ?.toString()
+                        .toLowerCase()
+                        .includes(search)
+
+                    ||
+
+                    item.stockStat
+                        ?.toLowerCase()
+                        .includes(search)
+
+                );
+
+            });
+
+        displayInventory(filtered);
+
+    }
+
+
+    /* CLOSE MODAL */
+
+    function closeModal() {
+
+        document.getElementById("inventoryModal").style.display =
+            "none";
+
+    }
+
+
+    window.onclick = function(event) {
+
+        const modal =
+            document.getElementById("inventoryModal");
+
+        if (event.target === modal) {
+            closeModal();
+        }
+
+    };
+
+</script>
+
+</body>
+</html>
