@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deliveries · Pharma+</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #F5F8F6;
+        --surface: #FFFFFF;
+        --surface-alt: #EAF1EC;
+        --ink: #16261E;
+        --ink-muted: #5C6D63;
+        --ink-faint: #8B9A91;
+        --primary: #0F5132;
+        --primary-bright: #2F9E6E;
+        --primary-wash: #E3F1E9;
+        --amber: #C77D2E;
+        --amber-wash: #FBEEDD;
+        --info: #3B6EA5;
+        --info-wash: #E7EFF7;
+        --danger: #B3412C;
+        --danger-wash: #F8E9E5;
+        --border: #DCE6E0;
+        --radius: 10px;
+        --font-display: 'Fraunces', serif;
+        --font-body: 'Inter', -apple-system, sans-serif;
+        --font-mono: 'IBM Plex Mono', monospace;
+        --shadow: 0 1px 2px rgba(15, 81, 50, 0.06), 0 4px 16px rgba(15, 81, 50, 0.05);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .app-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+
+    .sidebar { background: var(--primary); color: #EAF4EE; padding: 28px 0 20px; display: flex; flex-direction: column; }
+    .sidebar-brand { padding: 0 24px 24px; display: flex; align-items: baseline; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.14); margin-bottom: 14px; }
+    .sidebar-brand .mark { font-family: var(--font-display); font-weight: 600; font-size: 20px; color: #fff; }
+    .sidebar-brand .sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; color: rgba(255,255,255,0.55); text-transform: uppercase; }
+    .nav-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item { position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 24px 11px 20px; margin: 0 10px; border-radius: 8px 8px 0 0; color: rgba(255,255,255,0.72); text-decoration: none; font-size: 13.5px; font-weight: 500; cursor: pointer; border-left: 3px solid transparent; transition: background 0.15s, color 0.15s; }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .nav-item.active { background: var(--bg); color: var(--primary); border-left: 3px solid var(--amber); border-radius: 8px 0 0 8px; margin-right: 0; }
+    .nav-item .tab-icon { width: 16px; text-align: center; font-family: var(--font-mono); font-size: 12px; }
+    .sidebar-foot { margin-top: auto; padding: 16px 24px 0; border-top: 1px solid rgba(255,255,255,0.14); }
+    .who { display: flex; align-items: center; gap: 10px; padding-top: 14px; }
+    .who .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary-bright); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0; }
+    .who .name { font-size: 13px; font-weight: 500; color: #fff; }
+    .who .role { font-size: 11px; color: rgba(255,255,255,0.6); font-family: var(--font-mono); }
+    .logout-link { display: block; margin-top: 12px; font-size: 12px; color: rgba(255,255,255,0.55); cursor: pointer; }
+    .logout-link:hover { color: #fff; }
+
+    .main { padding: 32px 40px 60px; max-width: 1180px; }
+
+    .page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 26px; flex-wrap: wrap; gap: 14px; }
+    .page-head h1 { font-family: var(--font-display); font-weight: 600; font-size: 26px; margin: 0 0 4px; color: var(--ink); }
+    .page-head .eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary-bright); margin: 0 0 6px; }
+    .page-head p:not(.eyebrow) { margin: 0; color: var(--ink-muted); font-size: 13.5px; }
+
+    .btn { font-family: var(--font-body); font-size: 13.5px; font-weight: 500; padding: 9px 16px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: filter 0.15s, background 0.15s; }
+    .btn:focus-visible { outline: 2px solid var(--primary-bright); outline-offset: 2px; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost { background: transparent; color: var(--ink-muted); border-color: var(--border); }
+    .btn-ghost:hover { background: var(--surface-alt); color: var(--ink); }
+    .btn-danger { background: var(--danger-wash); color: var(--danger); }
+    .btn-danger:hover { filter: brightness(0.97); }
+    .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+    .card-pad { padding: 20px 22px; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; position: relative; overflow: hidden; }
+    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--stat-accent, var(--primary-bright)); }
+    .stat-card .stat-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); margin: 4px 0 8px; }
+    .stat-card .stat-value { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--ink); }
+    .stat-card .stat-sub { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { text-align: left; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-faint); background: var(--surface-alt); padding: 12px 18px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    tbody td { padding: 13px 18px; border-bottom: 1px solid var(--border); font-size: 13.5px; vertical-align: middle; white-space: nowrap; }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface-alt); }
+    .cell-name { font-weight: 500; }
+    .cell-mono { font-family: var(--font-mono); font-size: 12px; color: var(--ink-muted); }
+    .cell-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11px; font-weight: 500; padding: 4px 10px 4px 9px; border-radius: 999px; border-top: 2px solid transparent; text-transform: uppercase; letter-spacing: 0.03em; }
+    .badge-status-pending { background: var(--amber-wash); color: var(--amber); border-top-color: var(--amber); }
+    .badge-status-out { background: var(--info-wash); color: var(--info); border-top-color: var(--info); }
+    .badge-status-delivered { background: var(--primary-wash); color: var(--primary); border-top-color: var(--primary-bright); }
+    .badge-status-cancelled { background: var(--danger-wash); color: var(--danger); border-top-color: var(--danger); }
+
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .status-active { color: var(--primary); }
+    .status-active .status-dot { background: var(--primary-bright); }
+    .status-inactive { color: var(--ink-faint); }
+    .status-inactive .status-dot { background: var(--ink-faint); }
+    .status-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; }
+
+    .field { margin-bottom: 15px; }
+    .field label { display: block; font-size: 12.5px; font-weight: 500; color: var(--ink-muted); margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 7px; font-family: var(--font-body); font-size: 13.5px; color: var(--ink); background: var(--surface); }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: 2px solid var(--primary-bright); outline-offset: 0; border-color: transparent; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    .toolbar-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 16px; }
+    .toolbar-row .field { margin-bottom: 0; min-width: 180px; }
+    .toolbar-row .field.grow { flex: 1; }
+
+    .inline-assign { display: flex; gap: 6px; align-items: center; }
+    .inline-assign input { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: var(--font-body); font-size: 12.5px; width: 120px; }
+    .link-btn { background: none; border: none; padding: 0; font-family: inherit; font-size: 13.5px; color: var(--info); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+
+    .status-select { font-family: var(--font-body); font-size: 12px; padding: 5px 7px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(22, 38, 30, 0.35); display: none; align-items: flex-start; justify-content: center; padding: 60px 20px; z-index: 50; overflow-y: auto; }
+    .modal-backdrop.open { display: flex; }
+    .modal { background: var(--surface); border-radius: 14px; width: 100%; max-width: 480px; box-shadow: 0 20px 60px rgba(15,81,50,0.2); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+    .modal-head h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin: 0; }
+    .modal-close { background: none; border: none; font-size: 18px; color: var(--ink-faint); cursor: pointer; line-height: 1; }
+    .modal-body { padding: 20px 22px; }
+    .modal-foot { padding: 16px 22px 20px; display: flex; justify-content: flex-end; gap: 8px; }
+
+    .toast-stack { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 100; }
+    .toast { background: var(--ink); color: #fff; padding: 11px 16px; border-radius: 8px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); min-width: 220px; animation: toast-in 0.2s ease-out; }
+    .toast.error { background: var(--danger); }
+    .toast.success { background: var(--primary); }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-muted); }
+    .empty-state .glyph { font-family: var(--font-display); font-size: 34px; color: var(--primary-bright); margin-bottom: 8px; }
+    .empty-state p { margin: 4px 0 0; font-size: 13px; }
+
+    .text-muted { color: var(--ink-muted); }
+
+    @media (max-width: 780px) {
+        .app-shell { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+        .main { padding: 20px; }
+        .field-row { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="mark">Pharma+</span>
+            <span class="sub">Management</span>
+        </div>
+        <ul class="nav-list">
+            <li class="nav-item"><span class="tab-icon">Db</span>Dashboard</li>
+            <li class="nav-item"><span class="tab-icon">Rx</span>Inventory</li>
+            <li class="nav-item"><span class="tab-icon">Or</span>Orders</li>
+            <li class="nav-item active"><span class="tab-icon">Dv</span>Deliveries</li>
+            <li class="nav-item"><span class="tab-icon">St</span>Staff</li>
+        </ul>
+        <div class="sidebar-foot">
+            <div class="who">
+                <div class="avatar">RJ</div>
+                <div>
+                    <div class="name">Ravi Jayasuriya</div>
+                    <div class="role">Delivery Coordinator</div>
+                </div>
+            </div>
+            <span class="logout-link">Log out</span>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="page-head">
+            <div>
+                <p class="eyebrow">Delivery module</p>
+                <h1>Deliveries</h1>
+                <p>Track, assign, and update pharmacy order deliveries.</p>
+            </div>
+            <button class="btn btn-primary" id="newDeliveryBtn">+ New delivery</button>
+        </div>
+
+        <div class="stat-grid" id="statGrid"></div>
+
+        <div class="card card-pad" style="margin-bottom:18px;">
+            <div class="toolbar-row">
+                <div class="field grow">
+                    <label>Search customer</label>
+                    <input id="searchInput" placeholder="Jane Fernando" />
+                </div>
+                <div class="field">
+                    <label>Status</label>
+                    <select id="statusFilter">
+                        <option value="ALL">All statuses</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="OUT_FOR_DELIVERY">Out for delivery</option>
+                        <option value="DELIVERED">Delivered</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Courier</label>
+                    <select id="courierFilter">
+                        <option value="ALL">All couriers</option>
+                    </select>
+                </div>
+                <button class="btn btn-ghost" id="resetBtn">Reset</button>
+            </div>
+            <span class="status-pill" id="liveStatus">
+                <span class="status-dot"></span>
+                <span id="liveStatusText">Checking backend…</span>
+            </span>
+        </div>
+
+        <div id="tableArea"></div>
+    </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+        <div class="modal-head">
+            <h2>New delivery</h2>
+            <button class="modal-close" id="modalCloseBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="field"><label>Order ID</label><input id="f_orderId" placeholder="204" /></div>
+            <div class="field"><label>Customer name</label><input id="f_customerName" placeholder="Jane Fernando" /></div>
+            <div class="field"><label>Delivery address</label><input id="f_deliveryAddress" placeholder="14 Lotus Road, Negombo" /></div>
+            <div class="field"><label>Phone number</label><input id="f_phoneNumber" placeholder="077 214 9081" /></div>
+            <div class="field-row">
+                <div class="field"><label>Delivery date</label><input type="date" id="f_deliveryDate" /></div>
+                <div class="field"><label>Total amount (Rs)</label><input id="f_totalAmount" placeholder="4250" /></div>
+            </div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-ghost" id="modalCancelBtn">Cancel</button>
+            <button class="btn btn-primary" id="modalCreateBtn">Create delivery</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────
+// API layer — talks to the Spring Boot delivery endpoints on the SAME
+// origin as this page (since it's served from src/main/resources/static),
+// so relative paths are used and CORS doesn't come into play.
+// ─────────────────────────────────────────────────────────────────────
+const API_BASE = "/api/deliveries";
+
+async function apiCall(path, options) {
+  const res = await fetch(API_BASE + path, {
+    headers: { "Content-Type": "application/json" },
+    ...options,
+  });
+  if (!res.ok) throw new Error("Request failed: " + res.status);
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+const STATUS_META = {
+  PENDING: { label: "Pending", badgeClass: "badge-status-pending" },
+  OUT_FOR_DELIVERY: { label: "Out for delivery", badgeClass: "badge-status-out" },
+  DELIVERED: { label: "Delivered", badgeClass: "badge-status-delivered" },
+  CANCELLED: { label: "Cancelled", badgeClass: "badge-status-cancelled" },
+};
+
+const MOCK_SEED = [
+  { deliveryId: 1042, orderId: 204, customerName: "Jane Fernando", deliveryAddress: "14 Lotus Road, Negombo", phoneNumber: "077 214 9081", deliveryPerson: "R. Perera", deliveryDate: "2026-08-14", status: "OUT_FOR_DELIVERY", totalAmount: 4250, proofOfDelivery: null },
+  { deliveryId: 1041, orderId: 199, customerName: "Kasun Silva", deliveryAddress: "22/B Temple Lane, Kandy", phoneNumber: "071 558 2210", deliveryPerson: "M. Bandara", deliveryDate: "2026-08-13", status: "DELIVERED", totalAmount: 1890, proofOfDelivery: "Signed by recipient" },
+  { deliveryId: 1040, orderId: 197, customerName: "Amaya Perera", deliveryAddress: "5 Galle Road, Colombo 3", phoneNumber: "070 902 4471", deliveryPerson: "", deliveryDate: "2026-08-15", status: "PENDING", totalAmount: 3120, proofOfDelivery: null },
+  { deliveryId: 1039, orderId: 190, customerName: "Nadun Wickrama", deliveryAddress: "9 Station Road, Gampaha", phoneNumber: "076 331 8845", deliveryPerson: "R. Perera", deliveryDate: "2026-08-12", status: "CANCELLED", totalAmount: 980, proofOfDelivery: null },
+];
+
+let deliveries = [...MOCK_SEED];
+let usingLive = false;
+let statusFilter = "ALL";
+let courierFilter = "ALL";
+let query = "";
+let assigningId = null;
+
+function pushToast(message, type = "success") {
+  const stack = document.getElementById("toastStack");
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = message;
+  stack.appendChild(el);
+  setTimeout(() => el.remove(), 2600);
+}
+
+function getCouriers() {
+  return [...new Set(deliveries.map((d) => d.deliveryPerson).filter(Boolean))];
+}
+
+function getCounts() {
+  const c = { PENDING: 0, OUT_FOR_DELIVERY: 0, DELIVERED: 0, CANCELLED: 0 };
+  deliveries.forEach((d) => { if (c[d.status] !== undefined) c[d.status]++; });
+  return c;
+}
+
+function getFiltered() {
+  return deliveries.filter((d) => {
+    if (statusFilter !== "ALL" && d.status !== statusFilter) return false;
+    if (courierFilter !== "ALL" && d.deliveryPerson !== courierFilter) return false;
+    if (query && !d.customerName.toLowerCase().includes(query.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function renderStats() {
+  const c = getCounts();
+  document.getElementById("statGrid").innerHTML = `
+    <div class="stat-card" style="--stat-accent: var(--amber)">
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">${c.PENDING}</div>
+      <div class="stat-sub">awaiting assignment</div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--info)">
+      <div class="stat-label">Out for delivery</div>
+      <div class="stat-value">${c.OUT_FOR_DELIVERY}</div>
+      <div class="stat-sub">on the road</div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--primary-bright)">
+      <div class="stat-label">Delivered</div>
+      <div class="stat-value">${c.DELIVERED}</div>
+      <div class="stat-sub">completed</div>
+    </div>
+    <div class="stat-card" style="--stat-accent: var(--danger)">
+      <div class="stat-label">Cancelled</div>
+      <div class="stat-value">${c.CANCELLED}</div>
+      <div class="stat-sub">not fulfilled</div>
+    </div>
+  `;
+}
+
+function renderCourierFilterOptions() {
+  const sel = document.getElementById("courierFilter");
+  const current = sel.value;
+  sel.innerHTML = `<option value="ALL">All couriers</option>` +
+    getCouriers().map((c) => `<option value="${c}">${c}</option>`).join("");
+  sel.value = getCouriers().includes(current) ? current : "ALL";
+}
+
+function statusOptions(selected) {
+  return Object.entries(STATUS_META)
+    .map(([k, m]) => `<option value="${k}" ${k === selected ? "selected" : ""}>${m.label}</option>`)
+    .join("");
+}
+
+function renderTable() {
+  const filtered = getFiltered();
+  const area = document.getElementById("tableArea");
+
+  if (filtered.length === 0) {
+    area.innerHTML = `
+      <div class="card empty-state">
+        <div class="glyph">&empty;</div>
+        <div style="font-weight:500;color:var(--ink);">No deliveries match these filters</div>
+        <p>Try a different status, courier, or search term.</p>
+      </div>`;
+    return;
+  }
+
+  area.innerHTML = `
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Order</th><th>Customer</th><th>Address</th>
+            <th>Courier</th><th>Due date</th><th>Amount</th><th>Status</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(rowHtml).join("")}
+        </tbody>
+      </table>
+    </div>`;
+
+  attachRowHandlers();
+}
+
+function rowHtml(d) {
+  const courierCell = assigningId === d.deliveryId
+    ? `<div class="inline-assign">
+         <input class="assign-input" data-id="${d.deliveryId}" value="${d.deliveryPerson || ""}" placeholder="Courier name" autofocus />
+         <button class="btn btn-primary btn-sm assign-save" data-id="${d.deliveryId}">Save</button>
+       </div>`
+    : `<button class="link-btn assign-start" data-id="${d.deliveryId}">${d.deliveryPerson || "Assign courier"}</button>`;
+
+  return `
+    <tr>
+      <td class="cell-mono">D-${d.deliveryId}</td>
+      <td class="cell-mono">#${d.orderId ?? ""}</td>
+      <td class="cell-name">${d.customerName}</td>
+      <td class="text-muted">${d.deliveryAddress}</td>
+      <td>${courierCell}</td>
+      <td class="text-muted">${d.deliveryDate ?? ""}</td>
+      <td class="cell-mono">Rs ${Number(d.totalAmount || 0).toLocaleString()}</td>
+      <td>
+        <select class="status-select status-change" data-id="${d.deliveryId}">
+          ${statusOptions(d.status)}
+        </select>
+      </td>
+      <td>
+        <div class="cell-actions">
+          ${d.status !== "DELIVERED" ? `<button class="btn btn-ghost btn-sm proof-btn" data-id="${d.deliveryId}">Proof</button>` : ""}
+          <button class="btn btn-danger btn-sm delete-btn" data-id="${d.deliveryId}">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function attachRowHandlers() {
+  document.querySelectorAll(".assign-start").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      assigningId = Number(btn.dataset.id);
+      renderTable();
+    });
+  });
+
+  document.querySelectorAll(".assign-save").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = Number(btn.dataset.id);
+      const input = document.querySelector(`.assign-input[data-id="${id}"]`);
+      const value = input.value.trim();
+      if (value) handleAssign(id, value);
+      assigningId = null;
+    });
+  });
+
+  document.querySelectorAll(".assign-input").forEach((input) => {
+    input.addEventListener("keydown", (e) => {
+      const id = Number(input.dataset.id);
+      if (e.key === "Enter" && input.value.trim()) {
+        handleAssign(id, input.value.trim());
+        assigningId = null;
+      }
+      if (e.key === "Escape") { assigningId = null; renderTable(); }
+    });
+  });
+
+  document.querySelectorAll(".status-change").forEach((sel) => {
+    sel.addEventListener("change", () => handleStatus(Number(sel.dataset.id), sel.value));
+  });
+
+  document.querySelectorAll(".proof-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const note = window.prompt("Proof of delivery (signature note, code, etc.):");
+      if (note) handleProof(Number(btn.dataset.id), note);
+    });
+  });
+
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", () => handleDelete(Number(btn.dataset.id)));
+  });
+}
+
+function renderAll() {
+  renderStats();
+  renderCourierFilterOptions();
+  renderTable();
+}
+
+// ── mutations: try the live API, always mirror the change locally ──────
+async function handleCreate(payload) {
+  const optimistic = { ...payload, deliveryId: Date.now(), status: "PENDING", proofOfDelivery: null };
+  deliveries = [optimistic, ...deliveries];
+  pushToast("Delivery created");
+  renderAll();
+  try {
+    const created = await apiCall("", { method: "POST", body: JSON.stringify(payload) });
+    if (created) {
+      deliveries = deliveries.map((d) => (d.deliveryId === optimistic.deliveryId ? created : d));
+      renderAll();
+    }
+  } catch (e) { /* keep optimistic local copy */ }
+}
+
+async function handleDelete(id) {
+  deliveries = deliveries.filter((d) => d.deliveryId !== id);
+  pushToast("Delivery deleted", "error");
+  renderAll();
+  try { await apiCall(`/${id}`, { method: "DELETE" }); } catch (e) { /* already removed locally */ }
+}
+
+async function handleStatus(id, status) {
+  deliveries = deliveries.map((d) => (d.deliveryId === id ? { ...d, status } : d));
+  pushToast("Status set to " + STATUS_META[status].label);
+  renderAll();
+  try {
+    const updated = await apiCall(`/${id}/status?status=${status}`, { method: "PATCH" });
+    if (updated) { deliveries = deliveries.map((d) => (d.deliveryId === id ? updated : d)); renderAll(); }
+  } catch (e) { /* local update stands */ }
+}
+
+async function handleAssign(id, deliveryPerson) {
+  deliveries = deliveries.map((d) => (d.deliveryId === id
+    ? { ...d, deliveryPerson, status: d.status === "PENDING" ? "OUT_FOR_DELIVERY" : d.status }
+    : d));
+  pushToast("Assigned to " + deliveryPerson);
+  renderAll();
+  try {
+    const updated = await apiCall(`/${id}/assign?deliveryPerson=${encodeURIComponent(deliveryPerson)}`, { method: "PATCH" });
+    if (updated) { deliveries = deliveries.map((d) => (d.deliveryId === id ? updated : d)); renderAll(); }
+  } catch (e) { /* local update stands */ }
+}
+
+async function handleProof(id, note) {
+  deliveries = deliveries.map((d) => (d.deliveryId === id ? { ...d, proofOfDelivery: note, status: "DELIVERED" } : d));
+  pushToast("Proof of delivery captured");
+  renderAll();
+  try {
+    const updated = await apiCall(`/${id}/proof?proofOfDelivery=${encodeURIComponent(note)}`, { method: "PATCH" });
+    if (updated) { deliveries = deliveries.map((d) => (d.deliveryId === id ? updated : d)); renderAll(); }
+  } catch (e) { /* local update stands */ }
+}
+
+// ── filters / toolbar ───────────────────────────────────────────────────
+document.getElementById("searchInput").addEventListener("input", (e) => { query = e.target.value; renderTable(); });
+document.getElementById("statusFilter").addEventListener("change", (e) => { statusFilter = e.target.value; renderTable(); });
+document.getElementById("courierFilter").addEventListener("change", (e) => { courierFilter = e.target.value; renderTable(); });
+document.getElementById("resetBtn").addEventListener("click", () => {
+  statusFilter = "ALL"; courierFilter = "ALL"; query = "";
+  document.getElementById("searchInput").value = "";
+  document.getElementById("statusFilter").value = "ALL";
+  renderAll();
+});
+
+// ── modal ────────────────────────────────────────────────────────────────
+const modal = document.getElementById("modalBackdrop");
+function openModal() { modal.classList.add("open"); }
+function closeModal() {
+  modal.classList.remove("open");
+  ["f_orderId","f_customerName","f_deliveryAddress","f_phoneNumber","f_deliveryDate","f_totalAmount"]
+    .forEach((id) => document.getElementById(id).value = "");
+}
+document.getElementById("newDeliveryBtn").addEventListener("click", openModal);
+document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
+modal.addEventListener("click", (e) => { if (e.target === modal) closeModal(); });
+
+document.getElementById("modalCreateBtn").addEventListener("click", () => {
+  const customerName = document.getElementById("f_customerName").value.trim();
+  const deliveryAddress = document.getElementById("f_deliveryAddress").value.trim();
+  if (!customerName || !deliveryAddress) return;
+
+  const payload = {
+    orderId: Number(document.getElementById("f_orderId").value) || null,
+    customerName,
+    deliveryAddress,
+    phoneNumber: document.getElementById("f_phoneNumber").value.trim(),
+    deliveryDate: document.getElementById("f_deliveryDate").value || null,
+    totalAmount: Number(document.getElementById("f_totalAmount").value) || 0,
+  };
+  handleCreate(payload);
+  closeModal();
+});
+
+// ── initial load ─────────────────────────────────────────────────────────
+const liveStatusText = document.getElementById("liveStatusText");
+const liveStatusPill = document.getElementById("liveStatus");
+
+apiCall("")
+  .then((data) => {
+    if (Array.isArray(data)) {
+      deliveries = data;
+      usingLive = true;
+    }
+  })
+  .catch(() => { usingLive = false; })
+  .finally(() => {
+    liveStatusPill.className = "status-pill " + (usingLive ? "status-active" : "status-inactive");
+    liveStatusText.textContent = usingLive
+      ? "Live — connected to the backend"
+      : "Demo data — start your Spring Boot app to go live";
+    renderAll();
+  });
+</script>
+</body>
+</html>

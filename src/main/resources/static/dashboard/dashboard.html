@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard · Pharmacy Management System</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="mark">Rx<sup style="color:var(--amber);">+</sup></span>
+      <span class="sub">PMS</span>
+    </div>
+    <ul class="nav-list" id="navList"></ul>
+    <div class="sidebar-foot">
+      <div class="who">
+        <div class="avatar" id="avatarInitial">?</div>
+        <div>
+          <div class="name" id="whoName">Loading…</div>
+          <div class="role" id="whoRole">—</div>
+        </div>
+      </div>
+      <a class="logout-link" id="logoutLink">Log out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow" id="eyebrow">DASHBOARD</p>
+        <h1 id="pageTitle">Welcome</h1>
+        <p id="pageSub">Here's an overview for your role.</p>
+      </div>
+      <div id="pageActions"></div>
+    </div>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div id="contentArea"></div>
+  </main>
+</div>
+
+<!-- Add staff modal (admin only) -->
+<div class="modal-backdrop" id="staffModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Add staff member</h2>
+      <button class="modal-close" id="closeStaffModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="staffForm">
+        <div class="field" id="s_fullNameField">
+          <label>Full name</label>
+          <input type="text" id="s_fullName" required>
+          <div class="error"></div>
+        </div>
+        <div class="field-row">
+          <div class="field" id="s_emailField">
+            <label>Email</label>
+            <input type="email" id="s_email" required>
+            <div class="error"></div>
+          </div>
+          <div class="field" id="s_phoneNumberField">
+            <label>Phone number</label>
+            <input type="text" id="s_phoneNumber" placeholder="07XXXXXXXX" required>
+            <div class="error"></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" id="s_roleField">
+            <label>Role</label>
+            <select id="s_role" required>
+              <option value="ADMIN">Administrator</option>
+              <option value="PHARMACY_OWNER">Pharmacy Owner</option>
+              <option value="INVENTORY_MANAGER">Inventory Manager</option>
+              <option value="DELIVERY_STAFF">Delivery Staff</option>
+              <option value="PHARMACIST" selected>Pharmacist</option>
+              <option value="CASHIER">Cashier</option>
+              <option value="PURCHASE_MANAGER">Purchase Manager</option>
+            </select>
+            <div class="error"></div>
+          </div>
+          <div class="field" id="s_passwordField">
+            <label>Temporary password</label>
+            <input type="text" id="s_password" required>
+            <div class="hint">Shared with the staff member by email</div>
+            <div class="error"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="cancelStaffModal">Cancel</button>
+      <button class="btn btn-primary" id="submitStaffModal">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit user modal (admin / pharmacy owner - works for both staff and customer rows) -->
+<div class="modal-backdrop" id="editUserModalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Edit user</h2>
+      <button class="modal-close" id="closeEditUserModal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="editUserForm">
+        <input type="hidden" id="e_id">
+        <div class="field" id="e_fullNameField">
+          <label>Full name</label>
+          <input type="text" id="e_fullName" required>
+          <div class="error"></div>
+        </div>
+        <div class="field-row">
+          <div class="field" id="e_emailField">
+            <label>Email</label>
+            <input type="email" id="e_email" required>
+            <div class="hint">Changing this marks the email unverified again</div>
+            <div class="error"></div>
+          </div>
+          <div class="field" id="e_phoneNumberField">
+            <label>Phone number</label>
+            <input type="text" id="e_phoneNumber" placeholder="07XXXXXXXX" required>
+            <div class="error"></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" id="e_roleField">
+            <label>Role</label>
+            <select id="e_role" required>
+              <option value="ADMIN">Administrator</option>
+              <option value="PHARMACY_OWNER">Pharmacy Owner</option>
+              <option value="INVENTORY_MANAGER">Inventory Manager</option>
+              <option value="DELIVERY_STAFF">Delivery Staff</option>
+              <option value="PHARMACIST">Pharmacist</option>
+              <option value="CASHIER">Cashier</option>
+              <option value="PURCHASE_MANAGER">Purchase Manager</option>
+              <option value="CUSTOMER">Customer</option>
+            </select>
+            <div class="error"></div>
+          </div>
+          <div class="field" id="e_statusField">
+            <label>Status</label>
+            <select id="e_status" required>
+              <option value="ACTIVE">Active</option>
+              <option value="SUSPENDED">Suspended</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+            <div class="error"></div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="cancelEditUserModal">Cancel</button>
+      <button class="btn btn-primary" id="submitEditUserModal">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+<script src="/js/common.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>

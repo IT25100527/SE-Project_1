@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Email Verified · Pharmacy Management System</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+
+    <style>
+
+        body {
+            margin: 0;
+        }
+
+        .verification-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+
+        .verification-card {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 18px;
+            padding: 40px 32px;
+            text-align: center;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+            box-sizing: border-box;
+        }
+
+        .verification-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 22px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #e9f9ef;
+
+            color: #16a34a;
+
+            font-size: 42px;
+            font-weight: bold;
+        }
+
+        .verification-card h1 {
+            margin: 0 0 12px;
+            font-size: 26px;
+        }
+
+        .verification-card p {
+            color: #666;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .verified-email {
+            margin: 18px 0;
+
+            padding: 12px 15px;
+
+            background: #f5f7fa;
+
+            border-radius: 8px;
+
+            color: var(--primary);
+
+            font-weight: 600;
+
+            word-break: break-word;
+        }
+
+        .login-button {
+            width: 100%;
+            margin-top: 22px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            text-decoration: none;
+
+            box-sizing: border-box;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .loading {
+            color: #666;
+        }
+
+        .error-icon {
+            background: #fff0f0;
+            color: #dc2626;
+        }
+
+        .error-message {
+            color: #dc2626;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="verification-page">
+
+    <div class="verification-card">
+
+        <!-- LOADING -->
+
+        <div id="loadingSection">
+
+            <div class="verification-icon">
+                ⏳
+            </div>
+
+            <h1>
+                Verifying Your Email
+            </h1>
+
+            <p>
+                Please wait while we verify your email address...
+            </p>
+
+        </div>
+
+
+        <!-- SUCCESS -->
+
+        <div id="successSection"
+             class="hidden">
+
+            <div class="verification-icon">
+                ✓
+            </div>
+
+            <h1>
+                Email Verified Successfully!
+            </h1>
+
+            <p>
+                Your email address has been verified successfully.
+            </p>
+
+            <div id="verifiedEmail"
+                 class="verified-email">
+            </div>
+
+            <p>
+                Your customer account is now ready.
+            </p>
+
+            <p>
+                You can now log in using your email
+                address and password.
+            </p>
+
+            <a href="/customer/login.html"
+               class="btn btn-primary login-button">
+
+                Login to Your Account
+
+            </a>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        <div id="errorSection"
+             class="hidden">
+
+            <div class="verification-icon error-icon">
+                !
+            </div>
+
+            <h1>
+                Verification Failed
+            </h1>
+
+            <p id="errorMessage"
+               class="error-message">
+                The verification link is invalid or expired.
+            </p>
+
+            <a href="/customer/login.html"
+               class="btn login-button">
+
+                Go to Login
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+     * Get token from URL
+     *
+     * Example:
+     *
+     * /customer/email-verified.html?token=ABC123
+     */
+
+    const urlParams =
+        new URLSearchParams(window.location.search);
+
+    const token =
+        urlParams.get("token");
+
+
+    const loadingSection =
+        document.getElementById("loadingSection");
+
+    const successSection =
+        document.getElementById("successSection");
+
+    const errorSection =
+        document.getElementById("errorSection");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const verifiedEmail =
+        document.getElementById("verifiedEmail");
+
+
+    /*
+     * No token
+     */
+
+    if (!token) {
+
+        showError(
+            "No verification token was provided."
+        );
+
+    } else {
+
+        verifyEmail(token);
+
+    }
+
+
+    async function verifyEmail(token) {
+
+        try {
+
+            /*
+             * IMPORTANT:
+             *
+             * Change this URL if your backend
+             * uses another confirmation endpoint.
+             */
+
+            const response =
+                await fetch(
+                    "/customer/verify-email/confirm?token="
+                    + encodeURIComponent(token),
+                    {
+                        method: "GET"
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (result.success) {
+
+                showSuccess(
+                    result.data?.email || ""
+                );
+
+            } else {
+
+                showError(
+                    result.message ||
+                    "Email verification failed."
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            showError(
+                "Unable to verify your email. " +
+                "Please try the verification link again."
+            );
+
+        }
+
+    }
+
+
+    function showSuccess(email) {
+
+        loadingSection.classList.add("hidden");
+
+        errorSection.classList.add("hidden");
+
+        successSection.classList.remove("hidden");
+
+
+        if (email) {
+
+            verifiedEmail.textContent =
+                email;
+
+        } else {
+
+            verifiedEmail.textContent =
+                "Your email address is verified";
+
+        }
+
+    }
+
+
+    function showError(message) {
+
+        loadingSection.classList.add("hidden");
+
+        successSection.classList.add("hidden");
+
+        errorSection.classList.remove("hidden");
+
+        errorMessage.textContent =
+            message;
+
+    }
+
+</script>
+
+</body>
+</html>
